@@ -22,11 +22,76 @@
   color: var(--text-muted);
 }
 
+.fallback-note {
+  margin: 0;
+  border: 1px solid rgba(208, 132, 42, 0.35);
+  background: rgba(208, 132, 42, 0.15);
+  color: #8f5b10;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
 #tree {
   width: 100%;
   height: 100%;
   border-radius: 10px;
   overflow: hidden;
+}
+
+.fallback-forest {
+  display: grid;
+  gap: 12px;
+}
+
+.fallback-tree {
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background: var(--tile-bg);
+  padding: 12px;
+}
+
+.fallback-tree h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.partners {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+}
+
+.generation-block {
+  margin-top: 10px;
+}
+
+.generation-block h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.generation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+
+.person-chip {
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: var(--card-bg);
+  padding: 8px 10px;
+  display: grid;
+  gap: 4px;
+}
+
+.person-chip strong {
+  font-size: 0.92rem;
+}
+
+.person-chip span {
+  font-size: 0.82rem;
+  color: var(--text-muted);
 }
 
 @media (max-width: 980px) {

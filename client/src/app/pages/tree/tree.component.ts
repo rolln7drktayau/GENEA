@@ -21,7 +21,10 @@ export class TreeComponent implements OnInit {
   persons: any[] = [];
   familyData: any[] = [];
   hasTreeData = false;
+  useFallbackTree = false;
+  fallbackTrees: Array<{ root: any; generations: any[][]; partners: string[] }> = [];
   private familyTreeRef: any;
+  private renderWatchdog: any;
 
   constructor(private authService: AuthService, public i18n: I18nService) {}
 
@@ -67,6 +70,8 @@ export class TreeComponent implements OnInit {
     this.persons = nodes;
     this.familyData = nodes;
     this.hasTreeData = nodes.length > 0;
+    this.useFallbackTree = false;
+    this.fallbackTrees = [];
 
     const tree = document.getElementById('tree');
     if (!tree || nodes.length === 0) {
@@ -77,8 +82,9 @@ export class TreeComponent implements OnInit {
       this.familyTreeRef.destroy();
     }
 
-    FamilyTree.SEARCH_PLACEHOLDER = "Get focused on a person...";
-    this.familyTreeRef = new FamilyTree(tree, {
+    try {
+      FamilyTree.SEARCH_PLACEHOLDER = "Get focused on a person...";
+      this.familyTreeRef = new FamilyTree(tree, {
             // template : 'hugo',
             enableSearch: true,
             nodeMenu: {
@@ -165,7 +171,7 @@ export class TreeComponent implements OnInit {
             },
           });
 
-    this.familyTreeRef.editUI.on('save', (sender: any, args: any) => {
+      this.familyTreeRef.editUI.on('save', (sender: any, args: any) => {
             this.authService.getPersonByEmail(args.data).subscribe(isPresent => {
               if (isPresent) {
                 let toUpdate = this.updatePerson(isPresent, args.data);
@@ -176,7 +182,7 @@ export class TreeComponent implements OnInit {
             });
           });
 
-    this.familyTreeRef.editUI.on('element-btn-click', (sender: any, args: any) => {
+      this.familyTreeRef.editUI.on('element-btn-click', (sender: any, args: any) => {
             FamilyTree.fileUploadDialog((file) => {
               // console.log(args);
               // if (args.element.binding === 'i') {
@@ -196,7 +202,12 @@ export class TreeComponent implements OnInit {
             })
           });
 
-    this.familyTreeRef.load(this.persons);
+      this.familyTreeRef.load(this.persons);
+      this.scheduleRenderWatchdog(nodes);
+    } catch (error) {
+      console.error('FamilyTreeJS render failed, switching to fallback mode.', error);
+      this.activateFallbackTree(nodes);
+    }
   }
 
   transformPersonsData(persons: any): any[] {
@@ -319,5 +330,157 @@ export class TreeComponent implements OnInit {
       this.persons = persons;
       console.log('Persons:', this.persons);
     });
+  }
+
+  private scheduleRenderWatchdog(nodes: any[]): void {
+    if (this.renderWatchdog) {
+      clearTimeout(this.renderWatchdog);
+    }
+
+    this.renderWatchdog = setTimeout(() => {
+      const treeElement = document.getElementById('tree');
+      const hasSvg = !!treeElement?.querySelector('svg');
+      if (!hasSvg) {
+        this.activateFallbackTree(nodes);
+      }
+    }, 5000);
+  }
+
+  private activateFallbackTree(nodes: any[]): void {
+    if (this.familyTreeRef && typeof this.familyTreeRef.destroy === 'function') {
+      this.familyTreeRef.destroy();
+      this.familyTreeRef = null;
+    }
+
+    this.useFallbackTree = true;
+    this.fallbackTrees = this.buildFallbackForest(nodes);
+  }
+
+  private buildFallbackForest(nodes: any[]): Array<{ root: any; generations: any[][]; partners: string[] }> {
+    const source = Array.isArray(nodes) ? nodes : [];
+    if (source.length === 0) {
+      return [];
+    }
+
+    const byId = new Map<string, any>();
+    source.forEach((person) => {
+      if (person?.id) {
+        byId.set(String(person.id), person);
+      }
+    });
+
+    const childrenByParent = new Map<string, Set<string>>();
+    source.forEach((person) => {
+      const childId = person?.id ? String(person.id) : null;
+      if (!childId) {
+        return;
+      }
+
+      const addChild = (parentId: any) => {
+        if (!parentId) {
+          return;
+        }
+        const parentKey = String(parentId);
+        if (!byId.has(parentKey)) {
+          return;
+        }
+        if (!childrenByParent.has(parentKey)) {
+          childrenByParent.set(parentKey, new Set<string>());
+        }
+        childrenByParent.get(parentKey)?.add(childId);
+      };
+
+      addChild(person.mid);
+      addChild(person.fid);
+    });
+
+    const roots = source.filter((person) => {
+      const mid = person?.mid ? String(person.mid) : '';
+      const fid = person?.fid ? String(person.fid) : '';
+      const hasKnownMother = !!mid && byId.has(mid);
+      const hasKnownFather = !!fid && byId.has(fid);
+      return !hasKnownMother && !hasKnownFather;
+    });
+
+    const normalizedRoots = roots.length > 0 ? roots : source.slice(0, Math.min(source.length, 12));
+    const visited = new Set<string>();
+    const forest: Array<{ root: any; generations: any[][]; partners: string[] }> = [];
+
+    for (const root of normalizedRoots) {
+      if (!root?.id) {
+        continue;
+      }
+
+      const rootId = String(root.id);
+      if (visited.has(rootId)) {
+        continue;
+      }
+
+      const generations: any[][] = [];
+      let currentLevelIds = [rootId];
+      const localVisited = new Set<string>();
+      let depth = 0;
+
+      while (currentLevelIds.length > 0 && depth < 7) {
+        const levelPeople: any[] = [];
+        const nextLevelSet = new Set<string>();
+
+        for (const personId of currentLevelIds) {
+          if (localVisited.has(personId)) {
+            continue;
+          }
+          localVisited.add(personId);
+          visited.add(personId);
+
+          const person = byId.get(personId);
+          if (!person) {
+            continue;
+          }
+          levelPeople.push(person);
+
+          const childIds = childrenByParent.get(personId);
+          if (childIds) {
+            childIds.forEach((childId) => {
+              if (!localVisited.has(childId)) {
+                nextLevelSet.add(childId);
+              }
+            });
+          }
+        }
+
+        if (levelPeople.length > 0) {
+          generations.push(levelPeople);
+        }
+        currentLevelIds = Array.from(nextLevelSet);
+        depth++;
+      }
+
+      const partnerNames = (root.pids || [])
+        .map((partnerId: string) => byId.get(String(partnerId)))
+        .filter((partner: any) => !!partner)
+        .map((partner: any) => partner.name || partner.email || partner.id);
+
+      forest.push({
+        root,
+        generations,
+        partners: partnerNames
+      });
+    }
+
+    source.forEach((person) => {
+      if (!person?.id) {
+        return;
+      }
+      const personId = String(person.id);
+      if (!visited.has(personId)) {
+        forest.push({
+          root: person,
+          generations: [[person]],
+          partners: []
+        });
+      }
+    });
+
+    return forest;
   }
 }

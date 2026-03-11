@@ -42,6 +42,10 @@ export class I18nService {
       'tree.adminScope': 'Admin mode: all trees are visible.',
       'tree.userScope': 'User mode: only your own family tree is visible.',
       'tree.empty': 'No tree data available for this account.',
+      'tree.fallbackMode': 'Network layout service is unavailable. Showing offline tree fallback view.',
+      'tree.treeLabel': 'Tree',
+      'tree.partners': 'Partners',
+      'tree.generation': 'Generation',
 
       'family.title': 'Family Book',
       'family.subtitle': 'Members linked to your genealogy scope.',
@@ -141,6 +145,10 @@ export class I18nService {
       'tree.adminScope': 'Mode admin : tous les arbres sont visibles.',
       'tree.userScope': 'Mode utilisateur : seul votre arbre est visible.',
       'tree.empty': 'Aucune donnee darbre disponible pour ce compte.',
+      'tree.fallbackMode': 'Le service de mise en page reseau est indisponible. Affichage du mode arbre hors ligne.',
+      'tree.treeLabel': 'Arbre',
+      'tree.partners': 'Partenaires',
+      'tree.generation': 'Generation',
 
       'family.title': 'Livre de Famille',
       'family.subtitle': 'Membres lies a votre perimetre genealogique.',

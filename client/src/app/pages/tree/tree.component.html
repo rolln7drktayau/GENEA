@@ -9,10 +9,30 @@
       </p>
     </header>
 
+    <p class="fallback-note" *ngIf="useFallbackTree">{{ i18n.t('tree.fallbackMode') }}</p>
     <p class="empty" *ngIf="!hasTreeData">{{ i18n.t('tree.empty') }}</p>
 
-    <div class="tree-host graph_container">
+    <div class="tree-host graph_container" *ngIf="!useFallbackTree">
       <div id="tree"></div>
+    </div>
+
+    <div class="fallback-forest" *ngIf="useFallbackTree && hasTreeData">
+      <article class="fallback-tree" *ngFor="let tree of fallbackTrees; let treeIndex = index">
+        <h3>{{ i18n.t('tree.treeLabel') }} {{ treeIndex + 1 }} - {{ tree.root.name || tree.root.email }}</h3>
+        <p class="partners" *ngIf="tree.partners?.length">
+          {{ i18n.t('tree.partners') }}: {{ tree.partners.join(', ') }}
+        </p>
+
+        <section class="generation-block" *ngFor="let generation of tree.generations; let genIndex = index">
+          <h4>{{ i18n.t('tree.generation') }} {{ genIndex + 1 }}</h4>
+          <div class="generation-grid">
+            <div class="person-chip" *ngFor="let person of generation">
+              <strong>{{ person.name || '-' }}</strong>
+              <span>{{ person.email || '-' }}</span>
+            </div>
+          </div>
+        </section>
+      </article>
     </div>
   </section>
 </main>
