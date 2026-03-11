@@ -33,6 +33,20 @@ npm start
 
 Frontend runs on `http://localhost:4200` and connects to backend on `http://localhost:8080`.
 
+## One-command startup (Windows)
+
+From repository root:
+
+```powershell
+.\start-all.cmd
+```
+
+This opens two terminals:
+- Spring Boot server (`http://localhost:8080`)
+- Angular client (`http://localhost:4200`)
+
+`make` is not required for this setup.
+
 ## Environment variables (server)
 
 - `GENEA_MONGODB_URI`
