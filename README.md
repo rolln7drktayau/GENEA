@@ -63,7 +63,7 @@ npm run start:default
 ```
 
 `start:default` uses `proxy.conf.json` (`http://localhost:8080`).
-If backend is on a random port, use root `start-all.cmd` so proxy is auto-generated.
+If backend is on a random port, use `npm run start:auto` (it auto-detects a running backend port and updates `proxy.auto.conf.json` before launching Angular).
 
 ## Default admin account (development)
 

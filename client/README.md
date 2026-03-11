@@ -32,7 +32,7 @@ App URL: `http://localhost:4200`
 
 - `npm start`: start Angular dev server without proxy flag
 - `npm run start:default`: use `proxy.conf.json` (`http://localhost:8080`)
-- `npm run start:auto`: use auto-generated `proxy.auto.conf.json`
+- `npm run start:auto`: detect backend port from running services/runtime and refresh `proxy.auto.conf.json` before starting Angular
 
 Use root `start-all.cmd` when backend port is dynamic.
 
