@@ -213,7 +213,7 @@ $proxyPath = Write-ClientProxyConfig -BackendPort $backendPort
 Start-Process powershell -ArgumentList @(
     "-NoExit",
     "-Command",
-    "Set-Location '$serverDir'; .\mvnw.cmd spring-boot:run -Dspring-boot.run.arguments=--server.port=$backendPort"
+    "Set-Location '$serverDir'; `$env:SERVER_PORT='$backendPort'; .\mvnw.cmd spring-boot:run"
 )
 
 Start-Process powershell -ArgumentList @(
