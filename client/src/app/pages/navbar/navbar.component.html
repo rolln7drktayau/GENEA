@@ -1,0 +1,40 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" class="material-icons" />
+<link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+<div class="main">
+    <nav id="menu">
+        <img class="logo__icon" src="assets/images/SignIn.svg" alt="">
+        <h3 class="logo_title">GENEA</h3>
+        <ul>
+            <li *ngIf="isAuthenticated" (click)="navigate('/home')">
+                <i class="material-icons md-light">home</i>
+                <p>{{ i18n.t('nav.home') }}</p>
+            </li>
+            <li *ngIf="isAuthenticated" (click)="navigate('/profile')">
+                <i class="material-icons md-light">account_circle</i>
+                <p>{{ i18n.t('nav.profile') }}</p>
+            </li>
+            <li *ngIf="isAuthenticated" (click)="navigate('/family')">
+                <i class="material-icons md-light">auto_stories</i>
+                <p>{{ i18n.t('nav.family') }}</p>
+            </li>
+            <li *ngIf="isAuthenticated" (click)="navigate('/tree')">
+                <i class="material-icons md-light">account_tree</i>
+                <p>{{ i18n.t('nav.tree') }}</p>
+            </li>
+            <li *ngIf="isAuthenticated" (click)="navigate('/memories')">
+                <i class="material-icons md-light material-symbols-outlined">person_play</i>
+                <p>{{ i18n.t('nav.memories') }}</p>
+            </li>
+            <li (click)="toggleLanguage()" [title]="i18n.t('nav.languageHint')">
+                <i class="material-icons md-light">translate</i>
+                <p>{{ i18n.t('nav.language') }}</p>
+            </li>
+            <li *ngIf="isAuthenticated" (click)="signOut()">
+                <i class="material-icons md-light">logout</i>
+                <p>{{ i18n.t('nav.signOut') }}</p>
+            </li>
+        </ul>
+    </nav>
+</div>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymefeaf.org">
+<head>
+<!-- ... -->
+</head>
+<body>
+	<h1>Person Details</h1>
+	<table>
+		<!-- ... -->
+		<tr th:if="${person != null}">
+			<td th:text="${person.firstname}"></td>
+			<td th:text="${person.lastname}"></td>
+			<td th:text="${person.email}"></td>
+			<td th:text="${person.date}"></td>
+		</tr>
+	</table>
+
+	<h2>Mother</h2>
+	<table th:if="${mother != null}">
+		<!-- ... -->
+		<tr>
+			<td th:text="${mother.firstname}"></td>
+			<td th:text="${mother.lastname}"></td>
+		</tr>
+	</table>
+
+	<h2>Father</h2>
+	<table th:if="${father != null}">
+		<!-- ... -->
+		<tr>
+			<td th:text="${father.firstname}"></td>
+			<td th:text="${father.lastname}"></td>
+		</tr>
+	</table>
+
+	<h2>Children</h2>
+	<table th:if="${children != null && !children.isEmpty()}"
+		th:each="child : ${children}">
+		<!-- ... -->
+		<tr>
+			<th colspan="2" th:text="${child.firstname + ' ' + child.lastname}"></th>
+		</tr>
+		<tr>
+			<td>Email:</td>
+			<td th:text="${child.email}"></td>
+		</tr>
+		<tr>
+			<td>Date of Birth:</td>
+			<td th:text="${child.date}"></td>
+		</tr>
+	</table>
+
+</body>
+</html>

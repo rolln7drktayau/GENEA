@@ -1,0 +1,47 @@
+<app-navbar></app-navbar>
+<router-outlet></router-outlet>
+
+<section id="content" class="container">
+    <!-- <div class="search">
+        <h3 class="title">Search</h3>
+        <form>
+            <input type="text">
+            <button>start</button>
+        </form>
+    </div>
+    <div class="data">
+        <h3 class="title">Data</h3>
+    </div> -->
+    <div class="graph_container">
+        <h3 class="title">Family Book</h3>
+        <!-- <div class="first_graph"></div>
+        <div class="second_graph"></div> -->
+        <!-- In your component.html -->
+        <table class="table neumorphic">
+            <thead>
+                <tr>
+                    <th>FirstName</th>
+                    <th>LastName</th>
+                    <th>Gender</th>
+                    <th>Email</th>
+                    <th>Birth Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let person of persons">
+                    <td>{{person.firstname}}</td>
+                    <td>{{person.lastname}}</td>
+                    <td>{{person.gender}}</td>
+                    <td>{{person.email}}</td>
+                    <td>{{person.bdate}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <!-- <div class="graph_container">
+        <h3 class="title">Stats</h3>
+        <div class="first_graph"></div>
+        <div class="second_graph"></div>
+    </div> -->
+</section>

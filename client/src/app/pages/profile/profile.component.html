@@ -1,0 +1,66 @@
+<app-navbar></app-navbar>
+<router-outlet></router-outlet>
+
+<section id="content" class="container">
+    <!-- <div class="search">
+        <h3 class="title">Search</h3>
+        <form>
+            <input type="text">
+            <button>start</button>
+        </form>
+    </div>
+    <div class="data">
+        <h3 class="title">Data</h3>
+    </div> -->
+    <div class="graph_container">
+        <h3 class="title">Profile</h3>
+        <!-- <div class="first_graph"></div>
+        <div class="second_graph"></div> -->
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" id="tree" class="form">
+            <input type="text" name="username" autocomplete="current-name" style="display: none;">
+            <label>
+                <h1 class="title">Old Password:</h1>
+                <input type="password" class="form__input" formControlName="oldPassword" placeholder="Old Password"
+                    name="oldPassword" autocomplete="current-password" required />
+                <p *ngIf="form.get('oldPassword')?.invalid && isValidFormSubmitted != undefined && !isValidFormSubmitted"
+                    [ngClass]="'error'">
+                    Old Password Required !
+                </p>
+                <p *ngIf="!isPasswordCorrect(form) && isValidFormSubmitted != undefined && !isValidFormSubmitted" [ngClass]="'error'">
+                    That's not your password !
+                </p>
+            </label>
+
+            <label>
+                <h1 class="title">New Password:</h1>
+                <input type="password" class="form__input" formControlName="newPassword" placeholder="New Password"
+                    name="newPassword" autocomplete="current-password" required />
+                <p *ngIf="form.get('newPassword')?.invalid && isValidFormSubmitted != undefined && !isValidFormSubmitted"
+                    [ngClass]="'error'">
+                    New Password Required !
+                </p>
+            </label>
+
+            <label>
+                <h1 class="title">Confirm Password:</h1>
+                <input type="password" class="form__input" formControlName="confirmPassword"
+                    placeholder="Confirm Password" name="confirmPassword" autocomplete="current-password" required />
+                <p *ngIf="form.get('confirmPassword')?.invalid && isValidFormSubmitted != undefined && !isValidFormSubmitted"
+                    [ngClass]="'error'">
+                    You need to confirm the new Password !
+                </p>
+                <p *ngIf="checkPasswords(form) && isValidFormSubmitted != undefined && !isValidFormSubmitted" [ngClass]="'error'">
+                    Passwords doesn't match !
+                </p>
+            </label>
+
+            <button type="submit" class="button">Update</button>
+        </form>
+    </div>
+    <!-- <div class="graph_container">
+        <h3 class="title">Stats</h3>
+        <div class="first_graph"></div>
+        <div class="second_graph"></div>
+    </div> -->
+</section>

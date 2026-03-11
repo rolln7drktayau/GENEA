@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Add</title>
+<style type="text/css">
+td {
+	padding: 10px;
+}
+</style>
+</head>
+<body>
+	<div th:include="header.html"></div>
+	<form action="/save" method="post">
+		<input type="text" placeholder="Your Name, please" name="nom" /> 
+		<input type="text" placeholder="Your Email, please" name="email" />
+		<input type="text" placeholder="Your Note, please" name="note" />
+		<input type="submit" value="send" />
+	</form>
+</body>
+</html>

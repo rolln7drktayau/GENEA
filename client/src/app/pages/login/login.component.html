@@ -1,0 +1,82 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" class="material-icons" />
+
+<div class="main">
+    <button class="lang-button" type="button" (click)="toggleLanguage()" [title]="i18n.t('login.languageHint')">
+        <i class="material-icons">translate</i>
+        {{ i18n.t('login.language') }}
+    </button>
+
+    <div class="container a-container" id="a-container">
+        <form class="form" id="a-form" [formGroup]="signUpForm" (ngSubmit)="onSignUp()">
+            <img class="logo__icon" src="assets/images/SignIn.svg" alt="">
+            <h2 class="title">{{ i18n.t('login.createAccount') }}</h2>
+            <div class="form__icons">
+                <img class="form__icon" src="assets/svg/fb.svg" alt="">
+                <img class="form__icon" src="assets/svg/linkedin.svg">
+                <img class="form__icon" src="assets/svg/twitter.svg">
+            </div>
+            <span class="form__span">{{ i18n.t('login.registerHint') }}</span>
+            <input type="text" class="form__input" placeholder="First Name" name="name" formControlName="name" required
+                autocomplete="current-name" />
+            <div *ngIf="signUpForm.get('name')?.invalid && isValidFormSubmitted != undefined && !isValidFormSubmitted"
+                [ngClass]="'error'">
+                Name required.
+            </div>
+            <input type="email" class="form__input" placeholder="Email" name="email" formControlName="email" required
+                autocomplete="current-email" />
+            <div *ngIf="signUpForm.get('email')?.invalid && isValidFormSubmitted != undefined && !isValidFormSubmitted"
+                [ngClass]="'error'">
+                Email required.
+            </div>
+            <input type="password" class="form__input" placeholder="Password" name="password" formControlName="password" required
+                autocomplete="current-password" />
+            <div *ngIf="signUpForm.get('password')?.invalid && isValidFormSubmitted != undefined && !isValidFormSubmitted"
+                [ngClass]="'error'">
+                Password required.
+            </div>
+            <button type="submit" class="button">SIGN UP</button>
+        </form>
+    </div>
+
+    <div class="container b-container" id="b-container">
+        <form class="form" id="b-form" [formGroup]="signInForm" (ngSubmit)="onSignIn()">
+            <img class="logo__icon" src="assets/images/SignUp.svg" alt="">
+            <h2 class="title">{{ i18n.t('login.signIn') }}</h2>
+            <div class="form__icons">
+                <img class="form__icon" src="assets/svg/fb.svg" alt="">
+                <img class="form__icon" src="assets/svg/linkedin.svg">
+                <img class="form__icon" src="assets/svg/twitter.svg">
+            </div>
+            <span class="form__span">{{ i18n.t('login.signInHint') }}</span>
+            <input type="email" class="form__input" placeholder="Email" name="email" formControlName="email"
+                autocomplete="current-email" required />
+            <div *ngIf="signInForm.get('email')?.invalid && isValidFormSubmitted != undefined && !isValidFormSubmitted"
+                [ngClass]="'error'">
+                Email required.
+            </div>
+            <input type="password" class="form__input" placeholder="Password" name="password"
+                formControlName="password" autocomplete="current-password" required />
+            <div *ngIf="signInForm.get('password')?.invalid && isValidFormSubmitted != undefined && !isValidFormSubmitted"
+                [ngClass]="'error'">
+                Password required.
+            </div>
+            <a class="form__link">{{ i18n.t('login.forgotPassword') }}</a>
+            <button type="submit" class="button">SIGN IN</button>
+        </form>
+    </div>
+
+    <div class="switch" id="switch-cnt">
+        <div class="switch__circle"></div>
+        <div class="switch__circle switch__circle--t"></div>
+        <div class="switch__container" id="switch-c1">
+            <h2 class="title">{{ i18n.t('login.welcomeBack') }}</h2>
+            <p class="description">{{ i18n.t('login.welcomeBackDesc') }}</p>
+            <button class="switch__button button switch-btn">SIGN IN</button>
+        </div>
+        <div class="switch__container is-hidden" id="switch-c2">
+            <h2 class="switch__title title">{{ i18n.t('login.helloFriend') }}</h2>
+            <p class="description">{{ i18n.t('login.helloFriendDesc') }}</p>
+            <button class="switch__button button switch-btn">SIGN UP</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Filter</title>
+<style type="text/css">
+td {
+	padding: 10px;
+}
+</style>
+</head>
+<body>
+	<div th:include="header.html"></div>
+	<h1>Filter Page</h1>
+	<form action="filterPost" method="post">
+		<select name="type">
+			<option value="link">Filter by Link</option>
+			<option value="firstname">Filter by Firstname</option>
+			<option value="lastname">Filter by Lastname</option>
+			<option value="email">Filter by Email</option>
+			<option value="date">Filter by Date</option>
+		</select> <input type="text" placeholder="Value of your search" name="object" required/>
+		<input type="submit" value="Submit">
+	</form>
+	
+	<br>
+	<h1>Persons</h1>
+	<table border="2">
+		<tr>
+			<th>Link</th>
+			<th>FirstName</th>
+			<th>LastName</th>
+			<th>Email</th>
+			<th>Date</th>
+
+		</tr>
+
+		<tr th:each="person: ${persons}">
+			<td th:text="${person.id}" />
+			<td th:text="${person.link}" />
+			<td th:text="${person.firstname}" />
+			<td th:text="${person.lastname}" />
+			<td th:text="${person.email}" />
+			<td th:text="${person.date}" />
+		</tr>
+	</table>
+
+</body>
+</html>
