@@ -20,6 +20,8 @@ export class TreeComponent implements OnInit {
   person: Person = new Person();
   persons: any[] = [];
   familyData: any[] = [];
+  hasTreeData = false;
+  private familyTreeRef: any;
 
   constructor(private authService: AuthService, public i18n: I18nService) {}
 
@@ -28,17 +30,55 @@ export class TreeComponent implements OnInit {
   }
 
   ngOnInit() {
-    let id = sessionStorage.getItem('UserId');
-    if (id != null) {
-      this.authService.getTreeData(id).subscribe(persons => {
-        this.familyData = persons;
-        const transformedPersons = this.transformPersonsData(persons);
-        this.persons = transformedPersons;
+    const viewerId = sessionStorage.getItem('UserId');
+    if (viewerId == null) {
+      this.hasTreeData = false;
+      return;
+    }
 
-        const tree = document.getElementById('tree');
-        if (tree) {
-          FamilyTree.SEARCH_PLACEHOLDER = "Get focused on a person..."; // the default value is "Search"
-          var family = new FamilyTree(tree, {
+    this.authService.getTreeData(viewerId).subscribe({
+      next: (persons) => {
+        const transformedPersons = this.transformPersonsData(persons);
+        if (transformedPersons.length > 0) {
+          this.renderTree(transformedPersons);
+          return;
+        }
+
+        // Fallback if /tree/{id} returns empty.
+        if (this.isAdmin) {
+          this.authService.getAllPersons().subscribe(allPersons => {
+            const fallbackNodes = this.transformPersonsData(allPersons);
+            this.renderTree(fallbackNodes);
+          });
+        } else {
+          this.authService.getFamily(viewerId).subscribe(familyPersons => {
+            const fallbackNodes = this.transformPersonsData(familyPersons);
+            this.renderTree(fallbackNodes);
+          });
+        }
+      },
+      error: () => {
+        this.hasTreeData = false;
+      }
+    });
+  }
+
+  private renderTree(nodes: any[]): void {
+    this.persons = nodes;
+    this.familyData = nodes;
+    this.hasTreeData = nodes.length > 0;
+
+    const tree = document.getElementById('tree');
+    if (!tree || nodes.length === 0) {
+      return;
+    }
+
+    if (this.familyTreeRef && typeof this.familyTreeRef.destroy === 'function') {
+      this.familyTreeRef.destroy();
+    }
+
+    FamilyTree.SEARCH_PLACEHOLDER = "Get focused on a person...";
+    this.familyTreeRef = new FamilyTree(tree, {
             // template : 'hugo',
             enableSearch: true,
             nodeMenu: {
@@ -50,7 +90,7 @@ export class TreeComponent implements OnInit {
                 //   console.log('clicked on remove node', nodeId);
                 // }
                 onClick: (nodeId: string) => {
-                  family.removeNode(nodeId);
+                  this.familyTreeRef.removeNode(nodeId);
                   this.authService.getPersonById(nodeId).subscribe(result => {
                     if (result) {
                       if (result.email !== null && result.email !== undefined) {
@@ -125,7 +165,7 @@ export class TreeComponent implements OnInit {
             },
           });
 
-          family.editUI.on('save', (sender, args) => {
+    this.familyTreeRef.editUI.on('save', (sender: any, args: any) => {
             this.authService.getPersonByEmail(args.data).subscribe(isPresent => {
               if (isPresent) {
                 let toUpdate = this.updatePerson(isPresent, args.data);
@@ -136,7 +176,7 @@ export class TreeComponent implements OnInit {
             });
           });
 
-          family.editUI.on('element-btn-click', (sender, args) => {
+    this.familyTreeRef.editUI.on('element-btn-click', (sender: any, args: any) => {
             FamilyTree.fileUploadDialog((file) => {
               // console.log(args);
               // if (args.element.binding === 'i') {
@@ -156,18 +196,20 @@ export class TreeComponent implements OnInit {
             })
           });
 
-          family.load(this.persons);
-          // family.load(this.familyData);
-        }
-      });
-    }
+    this.familyTreeRef.load(this.persons);
   }
 
-  transformPersonsData(persons: any[]): any[] {
+  transformPersonsData(persons: any): any[] {
     try {
-      return persons.map((person) => {
+      const source = Array.isArray(persons) ? persons : [];
+
+      return source.map((person) => {
+        const firstName = person.firstname || person.firstName || '';
+        const lastName = person.lastname || person.lastName || '';
+        const fullName = person.name || `${firstName} ${lastName}`.trim();
+
         let transformedPerson: {
-          id: number;
+          id: string;
           pids?: string[];
           firstname: string;
           lastname: string;
@@ -175,8 +217,8 @@ export class TreeComponent implements OnInit {
           gender: string;
           email: string;
           photo: any;
-          mid?: number;
-          fid?: number,
+          mid?: string;
+          fid?: string,
           password?: string,
           mem?: any[],
           status?: string,
@@ -184,22 +226,22 @@ export class TreeComponent implements OnInit {
         } =
         {
           id: person.id,
-          firstname: person.firstname,
-          lastname: person.lastname,
-          name: `${person.firstname} ${person.lastname}`,
-          mid: person.mid,
-          fid: person.fid,
-          pids: person.pids,
+          firstname: firstName,
+          lastname: lastName,
+          name: fullName,
+          mid: person.mid ?? person.mother,
+          fid: person.fid ?? person.father,
+          pids: person.pids ?? person.partner ?? [],
           gender: person.gender,
           email: person.email,
           photo: person.photo,
           password: person.password,
           mem: person.mem,
           status: person.status,
-          desc: person.desc
+          desc: person.desc ?? person.description
         };
         return transformedPerson;
-      });
+      }).filter(node => !!node.id);
     } catch (error) {
       console.error('An error occurred:', error);
       return [];

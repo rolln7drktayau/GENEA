@@ -9,6 +9,8 @@
       </p>
     </header>
 
+    <p class="empty" *ngIf="!hasTreeData">{{ i18n.t('tree.empty') }}</p>
+
     <div class="tree-host graph_container">
       <div id="tree"></div>
     </div>

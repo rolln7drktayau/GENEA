@@ -41,6 +41,7 @@ export class I18nService {
       'tree.title': 'Family Tree Workspace',
       'tree.adminScope': 'Admin mode: all trees are visible.',
       'tree.userScope': 'User mode: only your own family tree is visible.',
+      'tree.empty': 'No tree data available for this account.',
 
       'family.title': 'Family Book',
       'family.subtitle': 'Members linked to your genealogy scope.',
@@ -139,6 +140,7 @@ export class I18nService {
       'tree.title': 'Espace Arbre Genealogique',
       'tree.adminScope': 'Mode admin : tous les arbres sont visibles.',
       'tree.userScope': 'Mode utilisateur : seul votre arbre est visible.',
+      'tree.empty': 'Aucune donnee darbre disponible pour ce compte.',
 
       'family.title': 'Livre de Famille',
       'family.subtitle': 'Membres lies a votre perimetre genealogique.',
