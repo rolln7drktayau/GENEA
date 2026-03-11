@@ -5,7 +5,6 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { AuthService } from "../../services/auth/auth.service";
 import { Person } from '../../models/person.model';
-declare var observer: any;
 
 @Component({
   selector: 'app-memories',
@@ -23,9 +22,6 @@ export class MemoriesComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (typeof observer === 'function') {
-      new observer();
-    }
     let id = sessionStorage.getItem('UserId');
     if (id != null) {
       this.authService.getFamily(id).subscribe(persons => {

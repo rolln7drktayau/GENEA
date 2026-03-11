@@ -7,8 +7,6 @@ import FamilyTree from '@balkangraph/familytree.js';
 import { AuthService } from '../../services/auth/auth.service';
 import { Person } from '../../models/person.model';
 
-declare var observer: any;
-
 @Component({
   selector: 'app-tree',
   standalone: true,
@@ -25,12 +23,9 @@ export class TreeComponent implements OnInit {
   constructor(private authService: AuthService) {}
 
   ngOnInit() {
-    if (typeof observer === 'function') {
-      new observer();
-    }
     let id = sessionStorage.getItem('UserId');
     if (id != null) {
-      this.authService.getFamily(id).subscribe(persons => {
+      this.authService.getTreeData(id).subscribe(persons => {
         console.log('Your Family', persons);
         this.familyData = persons;
         const transformedPersons = this.transformPersonsData(persons);

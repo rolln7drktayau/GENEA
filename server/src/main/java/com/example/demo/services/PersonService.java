@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -150,13 +151,47 @@ public class PersonService {
 	Set<Person> family = new HashSet<>();
 	Person person = getPersonById(id);
 	if (person != null) {
-//	    family.add(person);
+	    family.add(person);
 	    addParentsToFamily(person, family);
 	    addPartnerToFamily(person, family);
 	    addSiblingsToFamily(person, family);
 	    addChildrenToFamily(person, family);
 	}
 	return family;
+    }
+
+    public List<Person> getTreeDataByViewerId(String viewerId) {
+	Person viewer = getPersonById(viewerId);
+	if (viewer == null) {
+	    return new ArrayList<>();
+	}
+
+	if (ADMIN_ROLE.equalsIgnoreCase(viewer.getRole())) {
+	    return getAllPersonsFiltered();
+	}
+
+	Set<Person> family = getFamily(viewerId);
+	family.add(viewer);
+	return new ArrayList<>(family);
+    }
+
+    public ResponseEntity<Map<String, String>> resetPassword(String email, String newPassword) {
+	Map<String, String> response = new HashMap<>();
+	if (email == null || email.isBlank() || newPassword == null || newPassword.isBlank()) {
+	    response.put("error", "Email and new password are required.");
+	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	}
+
+	Person person = personRepository.findByEmail(email);
+	if (person == null) {
+	    response.put("error", "User not found.");
+	    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+	}
+
+	person.setPassword(newPassword);
+	personRepository.save(person);
+	response.put("message", "Password has been updated.");
+	return ResponseEntity.ok(response);
     }
 
     public List<Person> getSiblings(String personId) {
@@ -382,6 +417,7 @@ public class PersonService {
 
 	ensureAdminAccount();
 	ensureTestUserTemplates();
+	ensureTemplateTreeData();
     }
 
     private void ensureAdminAccount() {
@@ -457,6 +493,27 @@ public class PersonService {
 		"Audit admin template");
     }
 
+    private void ensureTemplateTreeData() {
+	// Long tree
+	linkParents("user.family@genea.local", "user.archive@genea.local", "user.historian@genea.local");
+	linkParents("user.parent@genea.local", "user.family@genea.local", "user.desktop@genea.local");
+	linkParents("user.child@genea.local", "user.parent@genea.local", "user.basic@genea.local");
+	linkParents("user.invite@genea.local", "user.child@genea.local", "user.guest@genea.local");
+	linkParents("user.tree@genea.local", "user.invite@genea.local", "user.memories@genea.local");
+
+	linkPartners("user.archive@genea.local", "user.historian@genea.local");
+	linkPartners("user.family@genea.local", "user.desktop@genea.local");
+	linkPartners("user.parent@genea.local", "user.basic@genea.local");
+	linkPartners("user.child@genea.local", "user.guest@genea.local");
+	linkPartners("user.invite@genea.local", "user.memories@genea.local");
+
+	// Small trees
+	linkParents("user.student@genea.local", "user.mobile@genea.local", "user.readonly@genea.local");
+	linkPartners("user.mobile@genea.local", "user.readonly@genea.local");
+	linkPartners("user.team1@genea.local", "user.team2@genea.local");
+	linkParents("admin.audit@genea.local", "admin.support@genea.local", "admin.ops@genea.local");
+    }
+
     private void upsertTemplateUser(String email, String password, String role, String status, String gender,
 	    String firstname, String lastname, String description) {
 	Person templateUser = personRepository.findByEmail(email);
@@ -475,6 +532,45 @@ public class PersonService {
 	templateUser.setDescription(description);
 
 	personRepository.save(templateUser);
+    }
+
+    private void linkParents(String childEmail, String motherEmail, String fatherEmail) {
+	Person child = personRepository.findByEmail(childEmail);
+	Person mother = personRepository.findByEmail(motherEmail);
+	Person father = personRepository.findByEmail(fatherEmail);
+
+	if (child == null || mother == null || father == null) {
+	    return;
+	}
+
+	child.setMother(mother.getId());
+	child.setFather(father.getId());
+	personRepository.save(child);
+    }
+
+    private void linkPartners(String firstEmail, String secondEmail) {
+	Person first = personRepository.findByEmail(firstEmail);
+	Person second = personRepository.findByEmail(secondEmail);
+
+	if (first == null || second == null) {
+	    return;
+	}
+
+	Set<String> firstPartners = new HashSet<>();
+	if (first.getPartner() != null) {
+	    firstPartners.addAll(first.getPartner());
+	}
+	firstPartners.add(second.getId());
+	first.setPartner(new ArrayList<>(firstPartners));
+
+	Set<String> secondPartners = new HashSet<>();
+	if (second.getPartner() != null) {
+	    secondPartners.addAll(second.getPartner());
+	}
+	secondPartners.add(first.getId());
+	second.setPartner(new ArrayList<>(secondPartners));
+
+	personRepository.saveAll(Arrays.asList(first, second));
     }
 
     private String sanitizeRole(String role) {

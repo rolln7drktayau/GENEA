@@ -1,37 +1,43 @@
 <app-navbar></app-navbar>
-<router-outlet></router-outlet>
 
-<section id="content" class="container">
-    <!-- <div class="search">
-        <h3 class="title">Search</h3>
-        <form>
-            <input type="text">
-            <button>start</button>
-        </form>
-    </div>
-    <div class="data">
-        <h3 class="title">Data</h3>
-    </div> -->
-    <div class="graph_container">
-        <h3 class="title">{{ i18n.t('home.welcome') }} {{ userName }}</h3>
-        
-        <br>
-        <p>{{ i18n.t('home.intro1') }}</p>
-        <br>
-        <p>{{ i18n.t('home.intro2') }}</p>
-        <br>
-        <p>{{ i18n.t('home.connections', { connections: stats.connections }) }}</p>
-        <p>{{ i18n.t('home.people', { male: stats.males, female: stats.females, memories: stats.memories }) }}</p>
-        <!-- <div class="title">
-            <p id="tree">
-                <img src="assets/images/familytree.jpg" alt="" >
-            </p>
-        </div> -->
+<main class="page-shell">
+  <section class="welcome-card">
+    <h1>{{ i18n.t('home.welcome', { name: userName }) }}</h1>
+    <p>{{ i18n.t('home.subtitle') }}</p>
+  </section>
 
-    </div>
-    <!-- <div class="graph_container">
-        <h3 class="title">Stats</h3>
-        <div class="first_graph">Yes</div>
-        <div class="second_graph">Yes ohhh</div>
-    </div> -->
-</section>
+  <section class="stats-grid">
+    <article class="stat-tile">
+      <p class="label">{{ i18n.t('home.card.users') }}</p>
+      <h2>{{ stats.connections }}</h2>
+    </article>
+    <article class="stat-tile">
+      <p class="label">{{ i18n.t('home.card.memories') }}</p>
+      <h2>{{ stats.memories }}</h2>
+    </article>
+    <article class="stat-tile">
+      <p class="label">{{ i18n.t('home.card.males') }}</p>
+      <h2>{{ stats.males }}</h2>
+    </article>
+    <article class="stat-tile">
+      <p class="label">{{ i18n.t('home.card.females') }}</p>
+      <h2>{{ stats.females }}</h2>
+    </article>
+  </section>
+
+  <section class="content-grid">
+    <article class="story-card">
+      <h3>{{ i18n.t('home.story') }}</h3>
+      <p>{{ i18n.t('home.storyText') }}</p>
+    </article>
+
+    <article class="quick-card">
+      <h3>{{ i18n.t('home.quickStart') }}</h3>
+      <ul>
+        <li>{{ i18n.t('home.quickOne') }}</li>
+        <li>{{ i18n.t('home.quickTwo') }}</li>
+        <li>{{ i18n.t('home.quickThree') }}</li>
+      </ul>
+    </article>
+  </section>
+</main>

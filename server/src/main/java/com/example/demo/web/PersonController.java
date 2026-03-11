@@ -85,6 +85,16 @@ public class PersonController {
         return new ResponseEntity<>(personService.getFamily(id), HttpStatus.OK);
     }
 
+    @GetMapping("/tree/{id}")
+    public ResponseEntity<List<Person>> getTreeData(@PathVariable String id) {
+        return new ResponseEntity<>(personService.getTreeDataByViewerId(id), HttpStatus.OK);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> request) {
+        return personService.resetPassword(request.get("email"), request.get("newPassword"));
+    }
+
     @PostMapping("/sendEmail")
     public ResponseEntity<Map<String, String>> sendEmail(@RequestBody Map<String, Person> persons) {
         Person initiator = persons.get("initiator");

@@ -4,7 +4,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { NavbarComponent } from '../navbar/navbar.component';
-declare var observer: any;
 
 @Component({
   selector: 'app-team',
@@ -22,9 +21,6 @@ export class TeamComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (typeof observer === 'function') {
-      new observer();
-    }
     this.authService.getTeam().subscribe((team) => {
       this.team = team;
     });

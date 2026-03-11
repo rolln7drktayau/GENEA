@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink } from '@angular/router';
-import { HomeComponent } from './pages/home/home.component';
-
-declare var observer: any;
+import { ThemeService } from './theme/theme.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [HomeComponent, CommonModule, RouterLink, RouterOutlet],
+  imports: [CommonModule, RouterLink, RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -16,9 +14,10 @@ declare var observer: any;
 export class AppComponent implements OnInit {
   title = 'Genea';
 
+  constructor(private themeService: ThemeService) {}
+
   ngOnInit() {
-    if (typeof observer === 'function') {
-      new observer();
-    }
+    // Force theme service initialization at app bootstrap.
+    this.themeService.setTheme(this.themeService.currentMode);
   }
 }

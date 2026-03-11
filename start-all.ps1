@@ -3,6 +3,84 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $serverDir = Join-Path $repoRoot "server"
 $clientDir = Join-Path $repoRoot "client"
+$runtimePath = Join-Path $repoRoot ".genea-runtime.json"
+
+function Stop-ProcessSafely {
+    param(
+        [int]$Pid,
+        [string]$Label
+    )
+
+    if ($Pid -le 0) {
+        return
+    }
+
+    try {
+        $process = Get-Process -Id $Pid -ErrorAction SilentlyContinue
+        if ($process) {
+            Stop-Process -Id $Pid -Force -ErrorAction SilentlyContinue
+            Write-Host "Stopped stale $Label process (PID $Pid)."
+        }
+    } catch {
+        # Ignore stale cleanup errors.
+    }
+}
+
+function Stop-StaleRun {
+    if (-not (Test-Path $runtimePath)) {
+        return
+    }
+
+    try {
+        $runtimeState = Get-Content -Path $runtimePath -Raw | ConvertFrom-Json
+    } catch {
+        Remove-Item -Path $runtimePath -Force -ErrorAction SilentlyContinue
+        return
+    }
+
+    $clientShellPid = 0
+    if ($null -ne $runtimeState.clientShellPid) {
+        $clientShellPid = [int]$runtimeState.clientShellPid
+    }
+
+    $serverShellPid = 0
+    if ($null -ne $runtimeState.serverShellPid) {
+        $serverShellPid = [int]$runtimeState.serverShellPid
+    }
+
+    $mongoShellPid = 0
+    if ($null -ne $runtimeState.mongoShellPid) {
+        $mongoShellPid = [int]$runtimeState.mongoShellPid
+    }
+
+    Stop-ProcessSafely -Pid $clientShellPid -Label "client shell"
+    Stop-ProcessSafely -Pid $serverShellPid -Label "server shell"
+    Stop-ProcessSafely -Pid $mongoShellPid -Label "mongo shell"
+
+    Remove-Item -Path $runtimePath -Force -ErrorAction SilentlyContinue
+}
+
+function Save-RuntimeState {
+    param(
+        [Parameter(Mandatory = $true)]
+        [int]$BackendPort,
+        [Parameter(Mandatory = $true)]
+        [int]$ServerShellPid,
+        [Parameter(Mandatory = $true)]
+        [int]$ClientShellPid,
+        [int]$MongoShellPid = 0
+    )
+
+    $state = [ordered]@{
+        backendPort = $BackendPort
+        serverShellPid = $ServerShellPid
+        clientShellPid = $ClientShellPid
+        mongoShellPid = $MongoShellPid
+        startedAt = (Get-Date).ToString("o")
+    }
+
+    $state | ConvertTo-Json | Set-Content -Path $runtimePath -Encoding ASCII
+}
 
 function Ensure-JavaHome {
     if ($env:JAVA_HOME -and (Test-Path $env:JAVA_HOME)) {
@@ -24,7 +102,7 @@ function Ensure-JavaHome {
             return $true
         }
     } catch {
-        # No-op, warning below.
+        # Warning below.
     }
 
     Write-Warning "JAVA_HOME is missing and could not be auto-detected. Configure JAVA_HOME to your JDK path."
@@ -122,7 +200,7 @@ function Get-MongodPath {
 function Start-MongoDb {
     if (Test-MongoDbPort) {
         Write-Host "MongoDB already running on localhost:27017."
-        return
+        return 0
     }
 
     $mongoService = Get-Service -Name "MongoDB" -ErrorAction SilentlyContinue
@@ -134,13 +212,13 @@ function Start-MongoDb {
 
     if (Test-MongoDbPort) {
         Write-Host "MongoDB service started."
-        return
+        return 0
     }
 
     $mongodPath = Get-MongodPath
     if (-not $mongodPath) {
         Write-Warning "mongod.exe not found. Install MongoDB Community Edition or add mongod to PATH."
-        return
+        return 0
     }
 
     $localDbPath = Join-Path $repoRoot ".mongo-data"
@@ -149,11 +227,11 @@ function Start-MongoDb {
     }
 
     Write-Host "Starting mongod process from script..."
-    Start-Process powershell -ArgumentList @(
+    $mongoShell = Start-Process powershell -ArgumentList @(
         "-NoExit",
         "-Command",
         "& '$mongodPath' --dbpath '$localDbPath' --bind_ip 127.0.0.1 --port 27017"
-    )
+    ) -PassThru
 
     Start-Sleep -Seconds 3
 
@@ -162,6 +240,8 @@ function Start-MongoDb {
     } else {
         Write-Warning "MongoDB still not reachable on localhost:27017."
     }
+
+    return $mongoShell.Id
 }
 
 function Write-ClientProxyConfig {
@@ -194,6 +274,7 @@ if (-not (Test-Path $clientDir)) {
     throw "Missing directory: $clientDir"
 }
 
+Stop-StaleRun
 Ensure-JavaHome | Out-Null
 
 if (-not (Test-Path (Join-Path $clientDir "node_modules"))) {
@@ -201,7 +282,7 @@ if (-not (Test-Path (Join-Path $clientDir "node_modules"))) {
     & npm --prefix $clientDir install
 }
 
-Start-MongoDb
+$mongoShellPid = Start-MongoDb
 
 $backendPort = Get-FreePort -PreferredPort 8080
 if ($backendPort -ne 8080) {
@@ -210,19 +291,22 @@ if ($backendPort -ne 8080) {
 
 $proxyPath = Write-ClientProxyConfig -BackendPort $backendPort
 
-Start-Process powershell -ArgumentList @(
+$serverShell = Start-Process powershell -ArgumentList @(
     "-NoExit",
     "-Command",
     "Set-Location '$serverDir'; `$env:SERVER_PORT='$backendPort'; .\mvnw.cmd spring-boot:run"
-)
+) -PassThru
 
-Start-Process powershell -ArgumentList @(
+$clientShell = Start-Process powershell -ArgumentList @(
     "-NoExit",
     "-Command",
-    "Set-Location '$clientDir'; npm start -- --proxy-config '$proxyPath'"
-)
+    "Set-Location '$clientDir'; npm run start:auto"
+) -PassThru
+
+Save-RuntimeState -BackendPort $backendPort -ServerShellPid $serverShell.Id -ClientShellPid $clientShell.Id -MongoShellPid $mongoShellPid
 
 Write-Host "GENEA startup launched."
 Write-Host "Backend: http://localhost:$backendPort"
 Write-Host "Frontend: http://localhost:4200"
 Write-Host "Angular proxy config: $proxyPath"
+Write-Host "Use .\stop-all.cmd to stop generated shells and free ports."

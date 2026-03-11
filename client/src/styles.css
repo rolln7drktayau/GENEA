@@ -1,1 +1,39 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap');
+
+:root,
+html[data-theme='light'],
+body[data-theme='light'] {
+  --bg-primary: #f0f4fb;
+  --bg-secondary: #e4edf9;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(24, 72, 128, 0.14);
+  --tile-bg: rgba(255, 255, 255, 0.72);
+  --text-primary: #18324f;
+  --text-muted: #4b5f78;
+  --accent-primary: #1a73e8;
+}
+
+html[data-theme='dark'],
+body[data-theme='dark'] {
+  --bg-primary: #0c1623;
+  --bg-secondary: #122032;
+  --card-bg: rgba(21, 36, 56, 0.94);
+  --card-border: rgba(128, 160, 210, 0.2);
+  --tile-bg: rgba(18, 34, 54, 0.74);
+  --text-primary: #f1f7ff;
+  --text-muted: #9ab0c9;
+  --accent-primary: #4d9bff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: 'Manrope', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}

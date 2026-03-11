@@ -125,8 +125,16 @@ export class AuthService {
     return this.http.get<Person[]>(`${this.apiUrl}/family/${id}`);
   }
 
+  getTreeData(id: string): Observable<Person[]> {
+    return this.http.get<Person[]>(`${this.apiUrl}/tree/${id}`);
+  }
+
   getPersonById(id: string): Observable<Person> {
     return this.http.get<Person>(`${this.apiUrl}/${id}`);
+  }
+
+  resetPassword(email: string, newPassword: string): Observable<Map<string, string>> {
+    return this.http.post<Map<string, string>>(`${this.apiUrl}/reset-password`, { email, newPassword });
   }
 
   sendEmail(initiator: Person, person: Person): Observable<Map<string, string>> {

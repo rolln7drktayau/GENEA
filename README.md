@@ -9,36 +9,16 @@ Author: **rolln7drktayau**
 - `client/`: Angular frontend
 - `server/`: Spring Boot API
 
-## Language support
+## Key features
 
-- Default language: **English**
-- French translation option: available in the UI through the **Translate** button (login page and navigation menu)
-
-## Quick start
-
-### 1) Backend
-
-```bash
-cd server
-./mvnw spring-boot:run
-```
-
-### 2) Frontend
-
-```bash
-cd client
-npm install
-npm start
-```
-
-Frontend runs on `http://localhost:4200` and connects to backend on `http://localhost:8080`.
-If port `8080` is already used, prefer `.\start-all.cmd` (it auto-picks a free backend port).
-
-## Default admin account (development)
-
-- Username (email field): `rct`
-- Password: `rct`
-- Role: `ADMIN`
+- Refreshed welcome screen and tile-based navigation bar
+- Theme switcher (`light` / `dark`) saved in browser storage
+- UI language switcher (`English` default, `French` optional)
+- Login, sign-up, and password reset directly from login page
+- Role-based tree access:
+  - `ADMIN`: can load all trees
+  - `USER`: can load only own family tree
+- Seeded short and long genealogy templates for test users
 
 ## One-command startup (Windows)
 
@@ -48,28 +28,61 @@ From repository root:
 .\start-all.cmd
 ```
 
-This opens two terminals:
-- Spring Boot server (`http://localhost:8080` by default, or a free random port if `8080` is busy)
-- Angular client (`http://localhost:4200`)
-- The script also starts MongoDB automatically:
-  - first choice: starts the `MongoDB` Windows service
-  - fallback: runs `mongod` from your MongoDB installation with local data folder `.mongo-data/`
-- The script auto-generates an Angular proxy config and points `/api` to the selected backend port.
+This command:
 
-`make` is not required for this setup.
+- starts MongoDB (`MongoDB` service if available, otherwise local `mongod`)
+- picks backend port `8080` if free, otherwise a free random port
+- generates `client/proxy.auto.conf.json`
+- starts server and client in separate shells
+
+To stop generated shells and free ports:
+
+```powershell
+.\stop-all.cmd
+```
+
+## Manual startup
+
+### Backend
+
+```bash
+cd server
+./mvnw spring-boot:run
+```
+
+If port `8080` is already used, backend now auto-falls back to a free port.
+
+### Frontend
+
+```bash
+cd client
+npm install
+npm run start:default
+```
+
+`start:default` uses `proxy.conf.json` (`http://localhost:8080`).
+If backend is on a random port, use root `start-all.cmd` so proxy is auto-generated.
+
+## Default admin account (development)
+
+- Login (email field): `rct`
+- Password: `rct`
+- Role: `ADMIN`
 
 ## Test users
 
-GENEA now seeds many test user templates (USER and ADMIN) on backend startup.
+GENEA seeds multiple user/admin templates on backend startup.
 
-Quick examples:
+Examples:
+
 - `rct` / `rct` (`ADMIN`)
 - `user.basic@genea.local` / `Basic123!` (`USER`)
-- `user.team1@genea.local` / `Team123!` (`USER`, team profile)
+- `user.team1@genea.local` / `Team123!` (`USER`)
 - `admin.ops@genea.local` / `AdminOps123!` (`ADMIN`)
 
-Full test user catalog is available in:
-- `TEST_USERS.txt` (repository root)
+Full list:
+
+- `TEST_USERS.txt`
 
 ## Environment variables (server)
 
