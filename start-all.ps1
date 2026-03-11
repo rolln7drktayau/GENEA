@@ -7,19 +7,19 @@ $runtimePath = Join-Path $repoRoot ".genea-runtime.json"
 
 function Stop-ProcessSafely {
     param(
-        [int]$Pid,
+        [int]$ProcessId,
         [string]$Label
     )
 
-    if ($Pid -le 0) {
+    if ($ProcessId -le 0) {
         return
     }
 
     try {
-        $process = Get-Process -Id $Pid -ErrorAction SilentlyContinue
+        $process = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
         if ($process) {
-            Stop-Process -Id $Pid -Force -ErrorAction SilentlyContinue
-            Write-Host "Stopped stale $Label process (PID $Pid)."
+            Stop-Process -Id $ProcessId -Force -ErrorAction SilentlyContinue
+            Write-Host "Stopped stale $Label process (PID $ProcessId)."
         }
     } catch {
         # Ignore stale cleanup errors.
@@ -53,9 +53,9 @@ function Stop-StaleRun {
         $mongoShellPid = [int]$runtimeState.mongoShellPid
     }
 
-    Stop-ProcessSafely -Pid $clientShellPid -Label "client shell"
-    Stop-ProcessSafely -Pid $serverShellPid -Label "server shell"
-    Stop-ProcessSafely -Pid $mongoShellPid -Label "mongo shell"
+    Stop-ProcessSafely -ProcessId $clientShellPid -Label "client shell"
+    Stop-ProcessSafely -ProcessId $serverShellPid -Label "server shell"
+    Stop-ProcessSafely -ProcessId $mongoShellPid -Label "mongo shell"
 
     Remove-Item -Path $runtimePath -Force -ErrorAction SilentlyContinue
 }
