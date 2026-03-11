@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
@@ -15,7 +15,7 @@ import { I18nService } from '../../services/i18n/i18n.service';
   templateUrl: './tree.component.html',
   styleUrl: './tree.component.css'
 })
-export class TreeComponent implements OnInit {
+export class TreeComponent implements OnInit, OnDestroy {
 
   person: Person = new Person();
   persons: any[] = [];
@@ -25,6 +25,7 @@ export class TreeComponent implements OnInit {
   fallbackTrees: Array<{ root: any; generations: any[][]; partners: string[] }> = [];
   private familyTreeRef: any;
   private renderWatchdog: any;
+  private fallbackActivated = false;
 
   constructor(private authService: AuthService, public i18n: I18nService) {}
 
@@ -66,11 +67,20 @@ export class TreeComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    if (this.renderWatchdog) {
+      clearTimeout(this.renderWatchdog);
+      this.renderWatchdog = null;
+    }
+    this.safeDestroyTreeRef();
+  }
+
   private renderTree(nodes: any[]): void {
     this.persons = nodes;
     this.familyData = nodes;
     this.hasTreeData = nodes.length > 0;
     this.useFallbackTree = false;
+    this.fallbackActivated = false;
     this.fallbackTrees = [];
 
     const tree = document.getElementById('tree');
@@ -78,9 +88,7 @@ export class TreeComponent implements OnInit {
       return;
     }
 
-    if (this.familyTreeRef && typeof this.familyTreeRef.destroy === 'function') {
-      this.familyTreeRef.destroy();
-    }
+    this.safeDestroyTreeRef();
 
     try {
       FamilyTree.SEARCH_PLACEHOLDER = "Get focused on a person...";
@@ -201,6 +209,12 @@ export class TreeComponent implements OnInit {
               });
             })
           });
+
+      this.familyTreeRef.on('ready', (_sender: any, status: any) => {
+        if (status === 2) {
+          this.activateFallbackTree(nodes);
+        }
+      });
 
       this.familyTreeRef.load(this.persons);
       this.scheduleRenderWatchdog(nodes);
@@ -338,22 +352,48 @@ export class TreeComponent implements OnInit {
     }
 
     this.renderWatchdog = setTimeout(() => {
+      if (this.fallbackActivated) {
+        return;
+      }
       const treeElement = document.getElementById('tree');
       const hasSvg = !!treeElement?.querySelector('svg');
       if (!hasSvg) {
         this.activateFallbackTree(nodes);
       }
-    }, 5000);
+    }, 2500);
   }
 
   private activateFallbackTree(nodes: any[]): void {
-    if (this.familyTreeRef && typeof this.familyTreeRef.destroy === 'function') {
-      this.familyTreeRef.destroy();
-      this.familyTreeRef = null;
+    if (this.fallbackActivated) {
+      return;
     }
+    this.fallbackActivated = true;
+
+    if (this.renderWatchdog) {
+      clearTimeout(this.renderWatchdog);
+      this.renderWatchdog = null;
+    }
+
+    this.safeDestroyTreeRef();
 
     this.useFallbackTree = true;
     this.fallbackTrees = this.buildFallbackForest(nodes);
+  }
+
+  private safeDestroyTreeRef(): void {
+    const existingRef = this.familyTreeRef;
+    this.familyTreeRef = null;
+
+    if (!existingRef || typeof existingRef.destroy !== 'function') {
+      return;
+    }
+
+    try {
+      existingRef.destroy();
+    } catch (error) {
+      // FamilyTree may throw when the instance was partially initialized.
+      console.warn('FamilyTreeJS destroy failed. Continuing with fallback.', error);
+    }
   }
 
   private buildFallbackForest(nodes: any[]): Array<{ root: any; generations: any[][]; partners: string[] }> {
@@ -484,3 +524,4 @@ export class TreeComponent implements OnInit {
     return forest;
   }
 }
+
