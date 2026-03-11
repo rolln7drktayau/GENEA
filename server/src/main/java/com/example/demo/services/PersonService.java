@@ -386,7 +386,15 @@ public class PersonService {
     private void ensureAdminAccount() {
 	Person admin = personRepository.findByEmail("rct");
 	if (admin != null) {
+	    admin.setPassword("rct");
 	    admin.setRole(ADMIN_ROLE);
+	    if (admin.getFirstname() == null || admin.getFirstname().isBlank()) {
+		admin.setFirstname("Root");
+	    }
+	    if (admin.getLastname() == null || admin.getLastname().isBlank()) {
+		admin.setLastname("Admin");
+	    }
+	    admin.setName(admin.getFirstname() + " " + admin.getLastname());
 	    personRepository.save(admin);
 	    return;
 	}

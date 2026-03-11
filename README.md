@@ -50,6 +50,7 @@ From repository root:
 This opens two terminals:
 - Spring Boot server (`http://localhost:8080`)
 - Angular client (`http://localhost:4200`)
+- The script also checks MongoDB on `localhost:27017` and tries to start the `MongoDB` Windows service if available.
 
 `make` is not required for this setup.
 
