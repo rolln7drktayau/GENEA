@@ -261,7 +261,7 @@ public class PersonService {
 	    Person yvan = new Person("Yvan", "Carel", "male", "yvancarel@mail.com", "04-02-1995");
 	    Person rolain = new Person("Rolain", "Parnell", "male", "mus.aenean@hotmail.edu", "15-11-1997");
 	    Person andy = new Person("Andy", "Jardel", "male", "nec@yahoo.net", "01-10-2003");
-	    Person cheryle = new Person("Chéryle", "Marcelle", "female", "mus.aenean@hotmail.edu", "13-07-2005");
+	    Person cheryle = new Person("Cheryle", "Marcelle", "female", "cheryle.marcelle@mail.com", "13-07-2005");
 	    Person hortense = new Person("Hortense", "Murielle", "female", "arcu.nunc@protonmail.net", "20-01-1976");
 	    Person marcel = new Person("Marcel", "Delaure", "male", "ligula.elit.pretium@aol.edu", "15-08-1965");
 //	    Person jean = new Person("Jean", "Ven", "male", "arcu.nunc@protonmail.net", "01-01-1935");
@@ -381,6 +381,7 @@ public class PersonService {
 	}
 
 	ensureAdminAccount();
+	ensureTestUserTemplates();
     }
 
     private void ensureAdminAccount() {
@@ -409,6 +410,71 @@ public class PersonService {
 	rootAdmin.setRole(ADMIN_ROLE);
 	rootAdmin.setStatus("Team");
 	personRepository.save(rootAdmin);
+    }
+
+    private void ensureTestUserTemplates() {
+	upsertTemplateUser("user.basic@genea.local", "Basic123!", USER_ROLE, "Member", "male", "Basic", "User",
+		"Standard user template");
+	upsertTemplateUser("user.family@genea.local", "Family123!", USER_ROLE, "Member", "female", "Family", "Keeper",
+		"Template focused on family data");
+	upsertTemplateUser("user.memories@genea.local", "Memory123!", USER_ROLE, "Member", "female", "Memory", "Maker",
+		"Template focused on memories");
+	upsertTemplateUser("user.tree@genea.local", "Tree123!", USER_ROLE, "Member", "male", "Tree", "Builder",
+		"Template focused on genealogy tree editing");
+	upsertTemplateUser("user.guest@genea.local", "Guest123!", USER_ROLE, "Guest", "male", "Guest", "Visitor",
+		"Guest-like user template");
+	upsertTemplateUser("user.student@genea.local", "Student123!", USER_ROLE, "Student", "female", "Student", "Learner",
+		"Learning user template");
+	upsertTemplateUser("user.premium@genea.local", "Premium123!", USER_ROLE, "Premium", "female", "Premium", "Member",
+		"Premium test template");
+	upsertTemplateUser("user.team1@genea.local", "Team123!", USER_ROLE, "Team", "male", "Team", "Contributor",
+		"Team member template");
+	upsertTemplateUser("user.team2@genea.local", "TeamLead123!", USER_ROLE, "Team", "female", "Team", "Lead",
+		"Team lead template");
+	upsertTemplateUser("user.parent@genea.local", "Parent123!", USER_ROLE, "Parent", "female", "Parent", "Profile",
+		"Parent profile template");
+	upsertTemplateUser("user.child@genea.local", "Child123!", USER_ROLE, "Child", "male", "Child", "Profile",
+		"Child profile template");
+	upsertTemplateUser("user.historian@genea.local", "History123!", USER_ROLE, "Research", "male", "History", "Curator",
+		"Historian template");
+	upsertTemplateUser("user.genealogist@genea.local", "Genea123!", USER_ROLE, "Research", "female", "Genea",
+		"Specialist", "Genealogist template");
+	upsertTemplateUser("user.mobile@genea.local", "Mobile123!", USER_ROLE, "Mobile", "female", "Mobile", "Tester",
+		"Mobile-first test template");
+	upsertTemplateUser("user.desktop@genea.local", "Desktop123!", USER_ROLE, "Desktop", "male", "Desktop", "Tester",
+		"Desktop-first test template");
+	upsertTemplateUser("user.invite@genea.local", "Invite123!", USER_ROLE, "Invited", "female", "Invite", "Only",
+		"Invitation flow template");
+	upsertTemplateUser("user.readonly@genea.local", "Read123!", USER_ROLE, "ReadOnly", "male", "Read", "Only",
+		"Read-only style template");
+	upsertTemplateUser("user.archive@genea.local", "Archive123!", USER_ROLE, "Archived", "female", "Archive", "Tester",
+		"Archived profile template");
+	upsertTemplateUser("admin.ops@genea.local", "AdminOps123!", ADMIN_ROLE, "Team", "male", "Ops", "Admin",
+		"Operations admin template");
+	upsertTemplateUser("admin.support@genea.local", "Support123!", ADMIN_ROLE, "Team", "female", "Support", "Admin",
+		"Support admin template");
+	upsertTemplateUser("admin.audit@genea.local", "Audit123!", ADMIN_ROLE, "Team", "male", "Audit", "Admin",
+		"Audit admin template");
+    }
+
+    private void upsertTemplateUser(String email, String password, String role, String status, String gender,
+	    String firstname, String lastname, String description) {
+	Person templateUser = personRepository.findByEmail(email);
+	if (templateUser == null) {
+	    templateUser = new Person();
+	}
+
+	templateUser.setEmail(email);
+	templateUser.setPassword(password);
+	templateUser.setRole(sanitizeRole(role));
+	templateUser.setStatus(status);
+	templateUser.setGender(gender);
+	templateUser.setFirstname(firstname);
+	templateUser.setLastname(lastname);
+	templateUser.setName(firstname + " " + lastname);
+	templateUser.setDescription(description);
+
+	personRepository.save(templateUser);
     }
 
     private String sanitizeRole(String role) {

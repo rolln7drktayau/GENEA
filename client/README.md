@@ -20,6 +20,7 @@ Author: **rolln7drktayau**
 
 - `USER`: standard access
 - `ADMIN`: access to admin-only pages (for example `/team`)
+- Ready-to-use test accounts are listed in `../TEST_USERS.txt`
 
 ## Run locally
 
@@ -44,7 +45,8 @@ npm run test -- --watch=false --browsers=ChromeHeadless
 
 ## API configuration
 
-Default API base URL is defined in:
+API calls use relative paths (`/api/...`) and are routed through Angular proxy config:
 
 - `src/environments/environment.ts`
 - `src/environments/environment.prod.ts`
+- `proxy.conf.json` (default local target: `http://localhost:8080`)

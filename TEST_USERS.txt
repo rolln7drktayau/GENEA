@@ -1,0 +1,126 @@
+GENEA TEST USERS CATALOG
+Author: rolln7drktayau
+
+How to use:
+- Start GENEA backend (server) at least once.
+- The backend seeds/updates the users below automatically.
+- In login form, use the "Email" input with the username/email shown here.
+
+French note:
+- Ce fichier permet de tester tout type de user (USER, ADMIN, Team, Guest, Premium, etc.).
+
+==================================================================
+ADMIN USERS
+==================================================================
+1) Email: rct
+   Password: rct
+   Role: ADMIN
+   Type: Root admin
+
+2) Email: admin.ops@genea.local
+   Password: AdminOps123!
+   Role: ADMIN
+   Type: Operations admin
+
+3) Email: admin.support@genea.local
+   Password: Support123!
+   Role: ADMIN
+   Type: Support admin
+
+4) Email: admin.audit@genea.local
+   Password: Audit123!
+   Role: ADMIN
+   Type: Audit admin
+
+==================================================================
+USER TEMPLATES
+==================================================================
+1) Email: user.basic@genea.local
+   Password: Basic123!
+   Role: USER
+   Type: Standard user
+
+2) Email: user.family@genea.local
+   Password: Family123!
+   Role: USER
+   Type: Family-focused user
+
+3) Email: user.memories@genea.local
+   Password: Memory123!
+   Role: USER
+   Type: Memories-focused user
+
+4) Email: user.tree@genea.local
+   Password: Tree123!
+   Role: USER
+   Type: Tree editor user
+
+5) Email: user.guest@genea.local
+   Password: Guest123!
+   Role: USER
+   Type: Guest profile
+
+6) Email: user.student@genea.local
+   Password: Student123!
+   Role: USER
+   Type: Student profile
+
+7) Email: user.premium@genea.local
+   Password: Premium123!
+   Role: USER
+   Type: Premium profile
+
+8) Email: user.team1@genea.local
+   Password: Team123!
+   Role: USER
+   Type: Team contributor
+
+9) Email: user.team2@genea.local
+   Password: TeamLead123!
+   Role: USER
+   Type: Team lead profile
+
+10) Email: user.parent@genea.local
+    Password: Parent123!
+    Role: USER
+    Type: Parent profile
+
+11) Email: user.child@genea.local
+    Password: Child123!
+    Role: USER
+    Type: Child profile
+
+12) Email: user.historian@genea.local
+    Password: History123!
+    Role: USER
+    Type: Historian profile
+
+13) Email: user.genealogist@genea.local
+    Password: Genea123!
+    Role: USER
+    Type: Genealogy specialist
+
+14) Email: user.mobile@genea.local
+    Password: Mobile123!
+    Role: USER
+    Type: Mobile tester
+
+15) Email: user.desktop@genea.local
+    Password: Desktop123!
+    Role: USER
+    Type: Desktop tester
+
+16) Email: user.invite@genea.local
+    Password: Invite123!
+    Role: USER
+    Type: Invitation flow profile
+
+17) Email: user.readonly@genea.local
+    Password: Read123!
+    Role: USER
+    Type: Read-only style profile
+
+18) Email: user.archive@genea.local
+    Password: Archive123!
+    Role: USER
+    Type: Archived profile

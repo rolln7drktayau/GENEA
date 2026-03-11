@@ -35,3 +35,5 @@ Default API URL: `http://localhost:8080`
   - Email: `rct`
   - Password: `rct`
   - Role: `ADMIN`
+- Many additional test user templates are also seeded on startup.
+  Full list: `../TEST_USERS.txt`
