@@ -6,6 +6,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
 import FamilyTree from '@balkangraph/familytree.js';
 import { AuthService } from '../../services/auth/auth.service';
 import { Person } from '../../models/person.model';
+import { I18nService } from '../../services/i18n/i18n.service';
 
 @Component({
   selector: 'app-tree',
@@ -20,16 +21,18 @@ export class TreeComponent implements OnInit {
   persons: any[] = [];
   familyData: any[] = [];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, public i18n: I18nService) {}
+
+  get isAdmin(): boolean {
+    return this.authService.isAdmin;
+  }
 
   ngOnInit() {
     let id = sessionStorage.getItem('UserId');
     if (id != null) {
       this.authService.getTreeData(id).subscribe(persons => {
-        console.log('Your Family', persons);
         this.familyData = persons;
         const transformedPersons = this.transformPersonsData(persons);
-        console.log('Transformed Data', transformedPersons);
         this.persons = transformedPersons;
 
         const tree = document.getElementById('tree');
@@ -47,16 +50,10 @@ export class TreeComponent implements OnInit {
                 //   console.log('clicked on remove node', nodeId);
                 // }
                 onClick: (nodeId: string) => {
-                  console.log('clicked on node to remove : ', nodeId);
-                  // let toRemove: string = `"${args.removeNodeId}"`;
-                  // console.log(toRemove);
-                  // let idToRemove = nodeId;
                   family.removeNode(nodeId);
                   this.authService.getPersonById(nodeId).subscribe(result => {
                     if (result) {
-                      console.log(result);
                       if (result.email !== null && result.email !== undefined) {
-                        console.log('Person To Remove : ', result);
                         let toUpdate = this.removePersonFromTree(result, nodeId);
                         this.updateData(toUpdate);
                       }
@@ -130,9 +127,7 @@ export class TreeComponent implements OnInit {
 
           family.editUI.on('save', (sender, args) => {
             this.authService.getPersonByEmail(args.data).subscribe(isPresent => {
-              // let toUpdate;
               if (isPresent) {
-                console.warn('Founded person :', isPresent);
                 let toUpdate = this.updatePerson(isPresent, args.data);
                 this.updateData(toUpdate);
               } else {
@@ -145,7 +140,6 @@ export class TreeComponent implements OnInit {
             FamilyTree.fileUploadDialog((file) => {
               // console.log(args);
               // if (args.element.binding === 'i') {
-              console.log('Upload a photo');
               let data = new FormData();
               data.append('file', file);
 
@@ -156,8 +150,6 @@ export class TreeComponent implements OnInit {
                   let personToUpdate: Person = result;
                   personToUpdate.photo = reader.result;
                   this.updateData(personToUpdate);
-                  console.log(reader);
-                  console.warn('WARN : ', personToUpdate);
                 };
                 reader.readAsDataURL(file);
               });
@@ -232,16 +224,12 @@ export class TreeComponent implements OnInit {
 
   updateData(personToUpdate: any) {
     this.authService.updateDb(personToUpdate).subscribe(person => {
-      console.log('To Update : ', personToUpdate);
       console.log('Updated Person:', person);
-      console.log('The person was updated');
     });
     this.authService.setStats();
   }
 
   updatePerson(existingPerson: any, newPerson: any): any {
-    let idtodelete = existingPerson.id;
-
     existingPerson.id = newPerson.id;
     existingPerson.name = newPerson.name;
     existingPerson.firstname = newPerson.firstname;
@@ -268,12 +256,6 @@ export class TreeComponent implements OnInit {
       existingPerson.mem = existingPerson.mem || [];
       existingPerson.mem.push(element);
     });
-
-    // this.authService.deletePerson(idtodelete).subscribe(isDeleted => {
-    //   if (isDeleted) {
-    //     console.log('User deleted !');
-    //   }
-    // });
 
     return existingPerson;
   }

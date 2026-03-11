@@ -44,10 +44,22 @@ export class LoginComponent {
     public i18n: I18nService
   ) {}
 
+  get isSignUpMode(): boolean {
+    return this.mode === 'signup';
+  }
+
+  get isResetMode(): boolean {
+    return this.mode === 'reset';
+  }
+
   setMode(mode: AuthMode): void {
     this.mode = mode;
     this.feedback = '';
     this.isError = false;
+  }
+
+  switchMode(): void {
+    this.setMode(this.isSignUpMode ? 'signin' : 'signup');
   }
 
   toggleLanguage(): void {

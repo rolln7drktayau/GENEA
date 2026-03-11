@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { RouterLink, RouterOutlet } from "@angular/router";
 import { NavbarComponent } from "../navbar/navbar.component";
 import { AuthService } from "../../services/auth/auth.service";
+import { I18nService } from "../../services/i18n/i18n.service";
 
 @Component({
   selector: 'app-family',
@@ -16,7 +17,7 @@ export class FamilyComponent implements OnInit {
 
   persons: any[] = [];
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, public i18n: I18nService) {
     this.authService = authService;
   }
 

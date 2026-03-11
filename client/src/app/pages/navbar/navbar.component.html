@@ -42,7 +42,7 @@
   <footer class="nav-footer">
     <button type="button" class="tile ghost" (click)="toggleTheme()" [title]="i18n.t('nav.themeHint')">
       <i class="material-icons">{{ isDarkTheme ? 'light_mode' : 'dark_mode' }}</i>
-      <span>{{ i18n.t('nav.theme') }}</span>
+      <span>{{ i18n.t(themeLabelKey) }}</span>
     </button>
 
     <button type="button" class="tile ghost" (click)="toggleLanguage()" [title]="i18n.t('nav.languageHint')">

@@ -1,95 +1,85 @@
-<section class="login-page">
-  <div class="background-shape shape-one"></div>
-  <div class="background-shape shape-two"></div>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" class="material-icons" />
 
-  <article class="login-card">
-    <header class="brand-header">
-      <div>
-        <h1>{{ i18n.t('login.title') }}</h1>
-        <p>{{ i18n.t('login.subtitle') }}</p>
-      </div>
-      <button class="lang-button" type="button" (click)="toggleLanguage()" [title]="i18n.t('login.languageHint')">
-        {{ i18n.t('login.language') }}
-      </button>
-    </header>
+<div class="main" [class.signup-mode]="isSignUpMode" [class.signin-mode]="!isSignUpMode">
+  <button class="lang-button" type="button" (click)="toggleLanguage()" [title]="i18n.t('login.languageHint')">
+    <i class="material-icons">translate</i>
+    {{ i18n.t('login.language') }}
+  </button>
 
-    <nav class="mode-switch">
-      <button type="button" [class.active]="mode === 'signin'" (click)="setMode('signin')">
-        {{ i18n.t('login.signIn') }}
-      </button>
-      <button type="button" [class.active]="mode === 'signup'" (click)="setMode('signup')">
-        {{ i18n.t('login.signUp') }}
-      </button>
-      <button type="button" [class.active]="mode === 'reset'" (click)="setMode('reset')">
-        {{ i18n.t('login.reset') }}
-      </button>
-    </nav>
+  <div class="feedback" *ngIf="feedback" [class.error]="isError">{{ feedback }}</div>
 
-    <div class="feedback" *ngIf="feedback" [class.error]="isError">
-      {{ feedback }}
-    </div>
+  <div class="container a-container">
+    <form class="form" [formGroup]="signUpForm" (ngSubmit)="onSignUp()">
+      <img class="logo__icon" src="assets/images/SignIn.svg" alt="GENEA Sign Up" />
+      <h2 class="title">{{ i18n.t('login.createAccount') }}</h2>
+      <span class="form__span">{{ i18n.t('login.registerHint') }}</span>
 
-    <form *ngIf="mode === 'signin'" class="auth-form" [formGroup]="signInForm" (ngSubmit)="onSignIn()">
-      <label>
-        <span>{{ i18n.t('login.email') }}</span>
-        <input type="text" formControlName="email" [placeholder]="i18n.t('login.email')" />
-      </label>
-      <small *ngIf="controlInvalid('signInForm', 'email')">{{ i18n.t('login.required') }}</small>
-
-      <label>
-        <span>{{ i18n.t('login.password') }}</span>
-        <input type="password" formControlName="password" [placeholder]="i18n.t('login.password')" />
-      </label>
-      <small *ngIf="controlInvalid('signInForm', 'password')">{{ i18n.t('login.required') }}</small>
-
-      <button class="primary" type="submit">{{ i18n.t('login.submitSignIn') }}</button>
-      <a type="button" class="link" (click)="setMode('reset')">{{ i18n.t('login.goReset') }}</a>
-    </form>
-
-    <form *ngIf="mode === 'signup'" class="auth-form" [formGroup]="signUpForm" (ngSubmit)="onSignUp()">
-      <label>
-        <span>{{ i18n.t('login.firstName') }}</span>
-        <input type="text" formControlName="name" [placeholder]="i18n.t('login.firstName')" />
-      </label>
+      <input type="text" class="form__input" [placeholder]="i18n.t('login.firstName')" formControlName="name" />
       <small *ngIf="controlInvalid('signUpForm', 'name')">{{ i18n.t('login.required') }}</small>
 
-      <label>
-        <span>{{ i18n.t('login.email') }}</span>
-        <input type="text" formControlName="email" [placeholder]="i18n.t('login.email')" />
-      </label>
+      <input type="email" class="form__input" [placeholder]="i18n.t('login.email')" formControlName="email" />
       <small *ngIf="controlInvalid('signUpForm', 'email')">{{ i18n.t('login.required') }}</small>
 
-      <label>
-        <span>{{ i18n.t('login.password') }}</span>
-        <input type="password" formControlName="password" [placeholder]="i18n.t('login.password')" />
-      </label>
+      <input type="password" class="form__input" [placeholder]="i18n.t('login.password')" formControlName="password" />
       <small *ngIf="controlInvalid('signUpForm', 'password')">{{ i18n.t('login.required') }}</small>
 
-      <button class="primary" type="submit">{{ i18n.t('login.submitSignUp') }}</button>
-      <a type="button" class="link" (click)="setMode('signin')">{{ i18n.t('login.switchSignin') }}</a>
+      <button type="submit" class="button">{{ i18n.t('login.submitSignUp') }}</button>
+    </form>
+  </div>
+
+  <div class="container b-container">
+    <form *ngIf="!isResetMode" class="form" [formGroup]="signInForm" (ngSubmit)="onSignIn()">
+      <img class="logo__icon" src="assets/images/SignUp.svg" alt="GENEA Sign In" />
+      <h2 class="title">{{ i18n.t('login.signIn') }}</h2>
+      <span class="form__span">{{ i18n.t('login.signInHint') }}</span>
+
+      <input type="email" class="form__input" [placeholder]="i18n.t('login.email')" formControlName="email" />
+      <small *ngIf="controlInvalid('signInForm', 'email')">{{ i18n.t('login.required') }}</small>
+
+      <input type="password" class="form__input" [placeholder]="i18n.t('login.password')" formControlName="password" />
+      <small *ngIf="controlInvalid('signInForm', 'password')">{{ i18n.t('login.required') }}</small>
+
+      <a class="form__link" (click)="setMode('reset')">{{ i18n.t('login.forgotPassword') }}</a>
+      <button type="submit" class="button">{{ i18n.t('login.submitSignIn') }}</button>
     </form>
 
-    <form *ngIf="mode === 'reset'" class="auth-form" [formGroup]="resetForm" (ngSubmit)="onResetPassword()">
-      <label>
-        <span>{{ i18n.t('login.email') }}</span>
-        <input type="text" formControlName="email" [placeholder]="i18n.t('login.email')" />
-      </label>
+    <form *ngIf="isResetMode" class="form" [formGroup]="resetForm" (ngSubmit)="onResetPassword()">
+      <img class="logo__icon" src="assets/images/SignUp.svg" alt="GENEA Reset" />
+      <h2 class="title">{{ i18n.t('login.reset') }}</h2>
+      <span class="form__span">{{ i18n.t('login.resetHint') }}</span>
+
+      <input type="email" class="form__input" [placeholder]="i18n.t('login.email')" formControlName="email" />
       <small *ngIf="controlInvalid('resetForm', 'email')">{{ i18n.t('login.required') }}</small>
 
-      <label>
-        <span>{{ i18n.t('login.password') }}</span>
-        <input type="password" formControlName="newPassword" [placeholder]="i18n.t('login.password')" />
-      </label>
+      <input type="password" class="form__input" [placeholder]="i18n.t('login.password')" formControlName="newPassword" />
       <small *ngIf="controlInvalid('resetForm', 'newPassword')">{{ i18n.t('login.required') }}</small>
 
-      <label>
-        <span>{{ i18n.t('login.confirmPassword') }}</span>
-        <input type="password" formControlName="confirmPassword" [placeholder]="i18n.t('login.confirmPassword')" />
-      </label>
+      <input type="password" class="form__input" [placeholder]="i18n.t('login.confirmPassword')" formControlName="confirmPassword" />
       <small *ngIf="controlInvalid('resetForm', 'confirmPassword')">{{ i18n.t('login.required') }}</small>
 
-      <button class="primary" type="submit">{{ i18n.t('login.submitReset') }}</button>
-      <a type="button" class="link" (click)="setMode('signin')">{{ i18n.t('login.goBack') }}</a>
+      <a class="form__link" (click)="setMode('signin')">{{ i18n.t('login.goBack') }}</a>
+      <button type="submit" class="button">{{ i18n.t('login.submitReset') }}</button>
     </form>
-  </article>
-</section>
+  </div>
+
+  <div class="switch">
+    <div class="switch__circle"></div>
+    <div class="switch__circle switch__circle--t"></div>
+
+    <div class="switch__container" *ngIf="isSignUpMode">
+      <h2 class="title">{{ i18n.t('login.welcomeBack') }}</h2>
+      <p class="description">{{ i18n.t('login.welcomeBackDesc') }}</p>
+      <button type="button" class="switch__button button" (click)="setMode('signin')">
+        {{ i18n.t('login.signIn') }}
+      </button>
+    </div>
+
+    <div class="switch__container" *ngIf="!isSignUpMode">
+      <h2 class="title">{{ i18n.t('login.helloFriend') }}</h2>
+      <p class="description">{{ i18n.t('login.helloFriendDesc') }}</p>
+      <button type="button" class="switch__button button" (click)="switchMode()">
+        {{ i18n.t('login.signUp') }}
+      </button>
+    </div>
+  </div>
+</div>

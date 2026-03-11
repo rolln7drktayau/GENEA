@@ -32,6 +32,10 @@ export class NavbarComponent {
     return this.themeService.isDark;
   }
 
+  get themeLabelKey(): string {
+    return this.isDarkTheme ? 'nav.themeLight' : 'nav.themeDark';
+  }
+
   isActive(path: string): boolean {
     return this.router.url.startsWith(path);
   }

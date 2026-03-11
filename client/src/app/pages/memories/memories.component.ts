@@ -5,6 +5,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { AuthService } from "../../services/auth/auth.service";
 import { Person } from '../../models/person.model';
+import { I18nService } from '../../services/i18n/i18n.service';
 
 @Component({
   selector: 'app-memories',
@@ -17,7 +18,7 @@ export class MemoriesComponent implements OnInit {
 
   persons: any[] = [];
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, public i18n: I18nService) {
     this.authService = authService;
   }
 
@@ -40,6 +41,7 @@ export class MemoriesComponent implements OnInit {
         let reader = new FileReader();
         reader.onload = () => {
           let personToUpdate: Person = result;
+          personToUpdate.mem = personToUpdate.mem || [];
           personToUpdate.mem.push(reader.result);
           this.authService.updateDb(personToUpdate).subscribe(result => {
             console.log('Update Database', result);

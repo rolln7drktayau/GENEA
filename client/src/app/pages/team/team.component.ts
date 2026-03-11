@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
+import { I18nService } from '../../services/i18n/i18n.service';
 import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
@@ -16,7 +17,7 @@ export class TeamComponent implements OnInit {
 
   team: any[] = [];
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, public i18n: I18nService) {
     this.authService = authService;
   }
 

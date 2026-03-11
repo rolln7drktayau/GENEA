@@ -1,77 +1,102 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { Person } from '../../models/person.model';
+import { I18nService } from '../../services/i18n/i18n.service';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterOutlet, ReactiveFormsModule, NavbarComponent],
-
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent {
-  form = this.formBuilder.group({
+  readonly form = this.formBuilder.group({
     oldPassword: new FormControl('', [Validators.required]),
     newPassword: new FormControl('', [Validators.required]),
-    confirmPassword: new FormControl('', [Validators.required]),
+    confirmPassword: new FormControl('', [Validators.required])
   });
 
-  isValidFormSubmitted: boolean | undefined;
-  notTheSame: boolean | undefined;
-  oldPassword: string | undefined;
-  newPassword: string | undefined;
-  confirmPassword: string | undefined;
-  sessionPassword: string | undefined;
+  submitted = false;
+  feedback = '';
+  isError = false;
 
-  toUpdate: any;
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private authService: AuthService,
+    public i18n: I18nService
+  ) {}
 
-  constructor(private formBuilder: FormBuilder, private router: Router, private authService: AuthService) {
+  controlInvalid(controlName: 'oldPassword' | 'newPassword' | 'confirmPassword'): boolean {
+    const control = this.form.get(controlName);
+    return !!control && control.invalid && this.submitted;
   }
 
-  checkPasswords(group: FormGroup) {
-    let newPassword = group.get('newPassword')?.value;
-    let confirmPassword = group.get('confirmPassword')?.value;
-    if (newPassword === confirmPassword) {
-      this.notTheSame = false;
-    }
-    return newPassword === confirmPassword ? null : { notSame: true };
+  get passwordsMatch(): boolean {
+    const next = this.form.get('newPassword')?.value || '';
+    const confirm = this.form.get('confirmPassword')?.value || '';
+    return next === confirm;
   }
 
-  isPasswordCorrect(group: FormGroup) {
-    let oldPassword = group.get('oldPassword')?.value;
-    return oldPassword === this.sessionPassword;
-  }
-
-  onSubmit() {
-    this.isValidFormSubmitted = false;
-    this.oldPassword = this.form.get('oldPassword')?.value || '';
-    this.newPassword = this.form.get('newPassword')?.value || '';
-    this.confirmPassword = this.form.get('confirmPassword')?.value || '';
-    let user = sessionStorage.getItem('User');
-    if (user != null) {
-      this.sessionPassword = JSON.parse(user).password;
-      console.log('Session password ', this.sessionPassword);
+  get oldPasswordMatches(): boolean {
+    const oldPassword = this.form.get('oldPassword')?.value || '';
+    const user = sessionStorage.getItem('User');
+    if (!user) {
+      return false;
     }
 
-    if (this.form.valid && (this.newPassword === this.confirmPassword) && (this.oldPassword === this.sessionPassword)) {
-      // Here you can add the code to actually update the password
+    const parsedUser = JSON.parse(user);
+    return oldPassword === (parsedUser.password || '');
+  }
 
-      if (user != null) {
-        this.toUpdate = JSON.parse(user);
-        this.toUpdate.password = this.confirmPassword;
-        this.authService.updateDb(this.toUpdate).subscribe(data => {
-          console.log('User updated :', data);
-          this.router.navigate(['/home']);
-        });
-      }
-      console.log(this.form.value);
-    } else {
+  onSubmit(): void {
+    this.submitted = true;
+    this.feedback = '';
+    this.isError = false;
+
+    if (this.form.invalid) {
       return;
     }
+
+    if (!this.oldPasswordMatches) {
+      this.setFeedback(this.i18n.t('profile.oldPasswordInvalid'), true);
+      return;
+    }
+
+    if (!this.passwordsMatch) {
+      this.setFeedback(this.i18n.t('profile.passwordMismatch'), true);
+      return;
+    }
+
+    const userRaw = sessionStorage.getItem('User');
+    if (!userRaw) {
+      this.setFeedback(this.i18n.t('profile.userMissing'), true);
+      return;
+    }
+
+    const toUpdate: Person = JSON.parse(userRaw);
+    const newPassword = this.form.get('confirmPassword')?.value || '';
+    toUpdate.password = newPassword;
+
+    this.authService.updateDb(toUpdate).subscribe({
+      next: (updatedUser) => {
+        this.authService.setSession(updatedUser);
+        this.setFeedback(this.i18n.t('profile.updated'));
+        this.router.navigate(['/home']);
+      },
+      error: () => {
+        this.setFeedback(this.i18n.t('profile.updateError'), true);
+      }
+    });
+  }
+
+  private setFeedback(message: string, isError = false): void {
+    this.feedback = message;
+    this.isError = isError;
   }
 }

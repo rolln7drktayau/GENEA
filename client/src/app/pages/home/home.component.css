@@ -3,10 +3,6 @@
 }
 
 .page-shell {
-  min-height: 100vh;
-  margin-left: 280px;
-  padding: 24px;
-  background: linear-gradient(160deg, var(--bg-primary), var(--bg-secondary));
   color: var(--text-primary);
 }
 
@@ -86,12 +82,6 @@
 }
 
 @media (max-width: 980px) {
-  .page-shell {
-    margin-left: 0;
-    padding: 12px;
-    padding-top: 180px;
-  }
-
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
