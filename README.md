@@ -19,6 +19,8 @@ Author: **rolln7drktayau**
   - `ADMIN`: can load all trees
   - `USER`: can load only own family tree
 - Seeded short and long genealogy templates for test users
+- Seeded genealogy forest: many short/medium/long template trees generated from
+  all provided test users and admins
 
 ## One-command startup (Windows)
 

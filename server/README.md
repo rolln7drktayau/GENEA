@@ -25,6 +25,7 @@ If port `8080` is already in use, the application now auto-selects a free local 
 - `GET /api/persons/tree/{id}`
   - `ADMIN`: returns all persons for global tree visualization
   - `USER`: returns only own family tree scope
+  - Test-user forest is generated automatically with many short/medium/long trees
 - `POST /api/persons/reset-password`
   - body: `{ "email": "...", "newPassword": "..." }`
 

@@ -5,6 +5,10 @@ How to use:
 - Start GENEA backend (server) at least once.
 - The backend seeds/updates the users below automatically.
 - In login form, use the "Email" input with the username/email shown here.
+- The backend now auto-generates many genealogy template trees from these users
+  (short, medium, and long trees).
+- ADMIN accounts can view the full forest (all trees).
+- USER accounts can only view their own tree scope.
 
 French note:
 - Ce fichier permet de tester tout type de user (USER, ADMIN, Team, Guest, Premium, etc.).

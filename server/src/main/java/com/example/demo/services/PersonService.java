@@ -26,6 +26,14 @@ import jakarta.annotation.PostConstruct;
 public class PersonService {
     private static final String ADMIN_ROLE = "ADMIN";
     private static final String USER_ROLE = "USER";
+    private static final List<String> TEMPLATE_TREE_ROOT_EMAILS = Arrays.asList("user.basic@genea.local",
+	    "user.family@genea.local", "user.memories@genea.local", "user.tree@genea.local",
+	    "user.guest@genea.local", "user.student@genea.local", "user.premium@genea.local",
+	    "user.team1@genea.local", "user.team2@genea.local", "user.parent@genea.local",
+	    "user.child@genea.local", "user.historian@genea.local", "user.genealogist@genea.local",
+	    "user.mobile@genea.local", "user.desktop@genea.local", "user.invite@genea.local",
+	    "user.readonly@genea.local", "user.archive@genea.local", "admin.ops@genea.local",
+	    "admin.support@genea.local", "admin.audit@genea.local", "rct");
 
     @Autowired
     private PersonRepository personRepository;
@@ -494,24 +502,156 @@ public class PersonService {
     }
 
     private void ensureTemplateTreeData() {
-	// Long tree
-	linkParents("user.family@genea.local", "user.archive@genea.local", "user.historian@genea.local");
-	linkParents("user.parent@genea.local", "user.family@genea.local", "user.desktop@genea.local");
-	linkParents("user.child@genea.local", "user.parent@genea.local", "user.basic@genea.local");
-	linkParents("user.invite@genea.local", "user.child@genea.local", "user.guest@genea.local");
-	linkParents("user.tree@genea.local", "user.invite@genea.local", "user.memories@genea.local");
+	resetTemplateRootRelations();
 
-	linkPartners("user.archive@genea.local", "user.historian@genea.local");
-	linkPartners("user.family@genea.local", "user.desktop@genea.local");
-	linkPartners("user.parent@genea.local", "user.basic@genea.local");
-	linkPartners("user.child@genea.local", "user.guest@genea.local");
-	linkPartners("user.invite@genea.local", "user.memories@genea.local");
+	int templateIndex = 0;
+	for (String rootEmail : TEMPLATE_TREE_ROOT_EMAILS) {
+	    Person root = personRepository.findByEmail(rootEmail);
+	    if (root == null) {
+		continue;
+	    }
 
-	// Small trees
-	linkParents("user.student@genea.local", "user.mobile@genea.local", "user.readonly@genea.local");
-	linkPartners("user.mobile@genea.local", "user.readonly@genea.local");
-	linkPartners("user.team1@genea.local", "user.team2@genea.local");
-	linkParents("admin.audit@genea.local", "admin.support@genea.local", "admin.ops@genea.local");
+	    int treeType = templateIndex % 3;
+	    if (treeType == 0) {
+		buildLongTemplateTree(root);
+	    } else if (treeType == 1) {
+		buildMediumTemplateTree(root);
+	    } else {
+		buildShortTemplateTree(root);
+	    }
+	    templateIndex++;
+	}
+    }
+
+    private void resetTemplateRootRelations() {
+	List<Person> rootsToReset = new ArrayList<>();
+	for (String rootEmail : TEMPLATE_TREE_ROOT_EMAILS) {
+	    Person root = personRepository.findByEmail(rootEmail);
+	    if (root == null) {
+		continue;
+	    }
+	    root.setMother(null);
+	    root.setFather(null);
+	    root.setPartner(new ArrayList<>());
+	    rootsToReset.add(root);
+	}
+
+	if (!rootsToReset.isEmpty()) {
+	    personRepository.saveAll(rootsToReset);
+	}
+    }
+
+    private void buildLongTemplateTree(Person root) {
+	Person mother = upsertRelativeForRoot(root, "mother", "Mother", "female");
+	Person father = upsertRelativeForRoot(root, "father", "Father", "male");
+	Person maternalGrandMother = upsertRelativeForRoot(root, "maternal-grand-mother", "MaternalGrandMother", "female");
+	Person maternalGrandFather = upsertRelativeForRoot(root, "maternal-grand-father", "MaternalGrandFather", "male");
+	Person paternalGrandMother = upsertRelativeForRoot(root, "paternal-grand-mother", "PaternalGrandMother", "female");
+	Person paternalGrandFather = upsertRelativeForRoot(root, "paternal-grand-father", "PaternalGrandFather", "male");
+
+	Person partner = upsertRelativeForRoot(root, "partner", "Partner", oppositeGender(root.getGender()));
+	Person childOne = upsertRelativeForRoot(root, "child-one", "ChildOne", "female");
+	Person childTwo = upsertRelativeForRoot(root, "child-two", "ChildTwo", "male");
+	Person childOnePartner = upsertRelativeForRoot(root, "child-one-partner", "ChildOnePartner", "male");
+	Person grandChild = upsertRelativeForRoot(root, "grand-child", "GrandChild", "female");
+
+	linkPartners(maternalGrandMother.getEmail(), maternalGrandFather.getEmail());
+	linkPartners(paternalGrandMother.getEmail(), paternalGrandFather.getEmail());
+
+	linkParents(mother.getEmail(), maternalGrandMother.getEmail(), maternalGrandFather.getEmail());
+	linkParents(father.getEmail(), paternalGrandMother.getEmail(), paternalGrandFather.getEmail());
+	linkPartners(mother.getEmail(), father.getEmail());
+	linkParents(root.getEmail(), mother.getEmail(), father.getEmail());
+
+	linkPartners(root.getEmail(), partner.getEmail());
+	linkChildToRootAndPartner(childOne.getEmail(), root, partner.getEmail());
+	linkChildToRootAndPartner(childTwo.getEmail(), root, partner.getEmail());
+
+	linkPartners(childOne.getEmail(), childOnePartner.getEmail());
+	linkChildToRootAndPartner(grandChild.getEmail(), childOne, childOnePartner.getEmail());
+    }
+
+    private void buildMediumTemplateTree(Person root) {
+	Person mother = upsertRelativeForRoot(root, "medium-mother", "MediumMother", "female");
+	Person father = upsertRelativeForRoot(root, "medium-father", "MediumFather", "male");
+	Person partner = upsertRelativeForRoot(root, "medium-partner", "MediumPartner", oppositeGender(root.getGender()));
+	Person child = upsertRelativeForRoot(root, "medium-child", "MediumChild", "female");
+
+	linkPartners(mother.getEmail(), father.getEmail());
+	linkParents(root.getEmail(), mother.getEmail(), father.getEmail());
+
+	linkPartners(root.getEmail(), partner.getEmail());
+	linkChildToRootAndPartner(child.getEmail(), root, partner.getEmail());
+    }
+
+    private void buildShortTemplateTree(Person root) {
+	Person partner = upsertRelativeForRoot(root, "short-partner", "ShortPartner", oppositeGender(root.getGender()));
+	Person child = upsertRelativeForRoot(root, "short-child", "ShortChild", "male");
+
+	linkPartners(root.getEmail(), partner.getEmail());
+	linkChildToRootAndPartner(child.getEmail(), root, partner.getEmail());
+    }
+
+    private Person upsertRelativeForRoot(Person root, String nodeCode, String relationLabel, String gender) {
+	String email = buildTemplateRelativeEmail(root.getEmail(), nodeCode);
+	Person relative = personRepository.findByEmail(email);
+	if (relative == null) {
+	    relative = new Person();
+	}
+
+	String baseFirstName = root.getFirstname();
+	if (baseFirstName == null || baseFirstName.isBlank()) {
+	    baseFirstName = "Template";
+	}
+
+	String baseLastName = root.getLastname();
+	if (baseLastName == null || baseLastName.isBlank()) {
+	    baseLastName = "Family";
+	}
+
+	relative.setEmail(email);
+	relative.setPassword("Template123!");
+	relative.setRole(USER_ROLE);
+	relative.setStatus("Template");
+	relative.setGender(gender);
+	relative.setFirstname(baseFirstName + relationLabel);
+	relative.setLastname(baseLastName);
+	relative.setName(relative.getFirstname() + " " + relative.getLastname());
+	relative.setDescription("Auto-generated template tree node related to " + root.getEmail());
+	relative.setMother(null);
+	relative.setFather(null);
+	relative.setPartner(new ArrayList<>());
+
+	return personRepository.save(relative);
+    }
+
+    private String buildTemplateRelativeEmail(String rootEmail, String nodeCode) {
+	String normalizedRoot = rootEmail.toLowerCase().replace("@", ".at.");
+	normalizedRoot = normalizedRoot.replaceAll("[^a-z0-9.]+", ".");
+	return "template." + normalizedRoot + "." + nodeCode + "@genea.local";
+    }
+
+    private String oppositeGender(String gender) {
+	if ("female".equalsIgnoreCase(gender)) {
+	    return "male";
+	}
+	if ("male".equalsIgnoreCase(gender)) {
+	    return "female";
+	}
+	return "female";
+    }
+
+    private void linkChildToRootAndPartner(String childEmail, Person root, String partnerEmail) {
+	if (root == null || root.getEmail() == null || partnerEmail == null) {
+	    return;
+	}
+
+	if ("female".equalsIgnoreCase(root.getGender())) {
+	    linkParents(childEmail, root.getEmail(), partnerEmail);
+	    return;
+	}
+
+	linkParents(childEmail, partnerEmail, root.getEmail());
     }
 
     private void upsertTemplateUser(String email, String password, String role, String status, String gender,
