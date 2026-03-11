@@ -23,6 +23,9 @@ import jakarta.annotation.PostConstruct;
 
 @Service
 public class PersonService {
+    private static final String ADMIN_ROLE = "ADMIN";
+    private static final String USER_ROLE = "USER";
+
     @Autowired
     private PersonRepository personRepository;
 
@@ -38,9 +41,21 @@ public class PersonService {
     }
 
     public Person updatePerson(Person personDetails) {
+	Person existingPerson = null;
+	if (personDetails.getId() != null && !personDetails.getId().isBlank()) {
+	    existingPerson = getPersonById(personDetails.getId());
+	}
+
 	if (personDetails.getFirstname() != null && personDetails.getLastname() != null) {
 	    personDetails.setName(personDetails.getFirstname() + " " + personDetails.getLastname());
 	}
+
+	if (existingPerson != null) {
+	    personDetails.setRole(sanitizeRole(existingPerson.getRole()));
+	} else {
+	    personDetails.setRole(sanitizeRole(personDetails.getRole()));
+	}
+
 	return personRepository.save(personDetails);
     }
 
@@ -56,6 +71,7 @@ public class PersonService {
 	if (newPerson.getFirstname() != null && newPerson.getLastname() != null) {
 	    newPerson.setName(newPerson.getFirstname() + " " + newPerson.getLastname());
 	}
+	newPerson.setRole(USER_ROLE);
 	return personRepository.save(newPerson);
     }
 
@@ -363,5 +379,34 @@ public class PersonService {
 	    mother = personRepository.save(mother);
 //	    father = personRepository.save(father);
 	}
+
+	ensureAdminAccount();
+    }
+
+    private void ensureAdminAccount() {
+	Person admin = personRepository.findByEmail("rct");
+	if (admin != null) {
+	    admin.setRole(ADMIN_ROLE);
+	    personRepository.save(admin);
+	    return;
+	}
+
+	Person rootAdmin = new Person();
+	rootAdmin.setFirstname("Root");
+	rootAdmin.setLastname("Admin");
+	rootAdmin.setName("Root Admin");
+	rootAdmin.setGender("male");
+	rootAdmin.setEmail("rct");
+	rootAdmin.setPassword("rct");
+	rootAdmin.setRole(ADMIN_ROLE);
+	rootAdmin.setStatus("Team");
+	personRepository.save(rootAdmin);
+    }
+
+    private String sanitizeRole(String role) {
+	if (ADMIN_ROLE.equalsIgnoreCase(role)) {
+	    return ADMIN_ROLE;
+	}
+	return USER_ROLE;
     }
 }

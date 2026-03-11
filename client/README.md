@@ -16,6 +16,11 @@ Author: **rolln7drktayau**
 - On login page: click the **Translate** button
 - After login: use the **Translate** entry in the left navigation
 
+## Roles
+
+- `USER`: standard access
+- `ADMIN`: access to admin-only pages (for example `/team`)
+
 ## Run locally
 
 ```bash

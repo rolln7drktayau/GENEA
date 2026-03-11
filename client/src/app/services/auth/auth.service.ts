@@ -13,6 +13,8 @@ export class AuthService {
   private readonly apiUrl = `${environment.apiBaseUrl}/api/persons`;
   private readonly statsUrl = `${environment.apiBaseUrl}/api/stats`;
   private readonly authSessionKey = 'IsAuthenticated';
+  private readonly roleSessionKey = 'UserRole';
+  private readonly adminRole = 'ADMIN';
 
   stats: Stats = new Stats(0, 0, 0, 0);
 
@@ -24,6 +26,14 @@ export class AuthService {
 
   set isAValidUser(value: boolean) {
     sessionStorage.setItem(this.authSessionKey, String(value));
+  }
+
+  get currentRole(): string {
+    return sessionStorage.getItem(this.roleSessionKey) ?? 'USER';
+  }
+
+  get isAdmin(): boolean {
+    return this.currentRole === this.adminRole;
   }
 
   // Login 
@@ -46,6 +56,7 @@ export class AuthService {
 
   setSession(person: Person): void {
     this.isAValidUser = true;
+    sessionStorage.setItem(this.roleSessionKey, person.role || 'USER');
     sessionStorage.setItem('UserId', person.id);
     sessionStorage.setItem('UserFirstName', person.firstname);
     sessionStorage.setItem('UserLastName', person.lastname);
@@ -100,14 +111,6 @@ export class AuthService {
 
   deleteSession(): void {
     sessionStorage.clear();
-  }
-
-  isAdmin(person: Person): boolean {
-    return (person.email === 'rct' && person.password === 'rct');
-  }
-
-  setAdminRights() {
-    sessionStorage.setItem('User', 'RCT');
   }
 
   getAllPersons(): Observable<Person[]> {

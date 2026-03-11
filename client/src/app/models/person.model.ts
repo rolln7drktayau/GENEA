@@ -10,6 +10,7 @@ export class Person {
   gender: string;
   email: string;
   password: string;
+  role: string;
   pids: Array<string>;
   mid: string;
   fid: string;
@@ -20,7 +21,7 @@ export class Person {
   desc : string;
 
   // define the constructor
-  constructor(id?: string, name?: string, firstname?: string, lastname?: string, gender?: string, email?: string, password?: string, partner?: Array<string>, mother?: string, father?: string, date?: string, photo?: any, mem?: Array<any>, status?: string, desc?: string) {
+  constructor(id?: string, name?: string, firstname?: string, lastname?: string, gender?: string, email?: string, password?: string, role?: string, partner?: Array<string>, mother?: string, father?: string, date?: string, photo?: any, mem?: Array<any>, status?: string, desc?: string) {
     this.id = id || '';
     this.name = firstname + ' ' + lastname || '';
     this.firstname = firstname || '';
@@ -28,6 +29,7 @@ export class Person {
     this.gender = gender || '';
     this.email = email || '';
     this.password = password || '';
+    this.role = role || 'USER';
     this.pids = partner || [];
     this.mid = mother || '';
     this.fid = father || '';

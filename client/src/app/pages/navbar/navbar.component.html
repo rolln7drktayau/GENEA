@@ -27,6 +27,10 @@
                 <i class="material-icons md-light material-symbols-outlined">person_play</i>
                 <p>{{ i18n.t('nav.memories') }}</p>
             </li>
+            <li *ngIf="isAuthenticated && isAdmin" (click)="navigate('/team')">
+                <i class="material-icons md-light material-symbols-outlined">groups_2</i>
+                <p>{{ i18n.t('nav.team') }}</p>
+            </li>
             <li (click)="toggleLanguage()" [title]="i18n.t('nav.languageHint')">
                 <i class="material-icons md-light">translate</i>
                 <p>{{ i18n.t('nav.language') }}</p>

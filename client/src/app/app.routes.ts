@@ -7,6 +7,7 @@ import { TreeComponent } from './pages/tree/tree.component';
 import { MemoriesComponent } from './pages/memories/memories.component';
 import { NavbarComponent } from './pages/navbar/navbar.component';
 import { authGuard } from './shield/auth.guard';
+import { adminGuard } from './shield/admin.guard';
 import { TeamComponent } from './pages/team/team.component';
 
 export const routes: Routes = [
@@ -16,7 +17,7 @@ export const routes: Routes = [
   { path: 'family', component: FamilyComponent, canActivate: [authGuard] },
   { path: 'tree', component: TreeComponent, canActivate: [authGuard] },
   { path: 'memories', component: MemoriesComponent, canActivate: [authGuard] },
-  { path: 'team', component: TeamComponent, canActivate: [authGuard] },
+  { path: 'team', component: TeamComponent, canActivate: [authGuard, adminGuard] },
   { path: 'navbar', component: NavbarComponent, canActivate: [authGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login', pathMatch: 'full' }

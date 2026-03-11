@@ -81,6 +81,7 @@ export class LoginComponent implements OnInit {
     this.person.firstname = this.signUpForm.get('name')?.value || '';
     this.person.email = this.signUpForm.get('email')?.value || '';
     this.person.password = this.signUpForm.get('password')?.value || '';
+    this.person.role = 'USER';
 
     this.authService.checkPerson(this.person).subscribe(result => {
       if (result) {

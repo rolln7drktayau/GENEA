@@ -31,3 +31,7 @@ Default API URL: `http://localhost:8080`
 
 - Sensitive values are no longer hardcoded in the repository.
 - CORS origins are configurable through environment variables.
+- A development admin account is ensured on startup:
+  - Email: `rct`
+  - Password: `rct`
+  - Role: `ADMIN`

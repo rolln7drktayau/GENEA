@@ -17,6 +17,10 @@ export class NavbarComponent {
     return this.authService.isAValidUser;
   }
 
+  get isAdmin(): boolean {
+    return this.authService.isAdmin;
+  }
+
   constructor(
     private router: Router,
     public themeService: ThemeService,

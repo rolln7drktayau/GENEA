@@ -33,6 +33,12 @@ npm start
 
 Frontend runs on `http://localhost:4200` and connects to backend on `http://localhost:8080`.
 
+## Default admin account (development)
+
+- Username (email field): `rct`
+- Password: `rct`
+- Role: `ADMIN`
+
 ## One-command startup (Windows)
 
 From repository root:

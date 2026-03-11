@@ -39,6 +39,9 @@ public class Person implements Serializable {
 
     private String password;
 
+    @JsonProperty("role")
+    private String role;
+
     @JsonProperty("pids")
     private List<String> partner;
 
@@ -67,6 +70,7 @@ public class Person implements Serializable {
         super();
         this.partner = new ArrayList<>();
         this.memories = new ArrayList<>();
+        this.role = "USER";
     }
 
     public Person(Person person) {
@@ -80,6 +84,7 @@ public class Person implements Serializable {
         // if (person.password != null) {
         this.password = person.password;
         // }
+        this.role = person.role;
         this.mother = person.mother;
         this.father = person.father;
         this.partner = person.partner;
@@ -99,6 +104,7 @@ public class Person implements Serializable {
         this.father = this.firstname + " " + this.email + " " + "Father";
         this.partner = new ArrayList<>();
         this.memories = new ArrayList<>();
+        this.role = "USER";
     }
 
     public Person(String firstname, String email, String password) {
@@ -111,6 +117,7 @@ public class Person implements Serializable {
         this.father = this.firstname + " " + this.email + " " + "Father";
         this.partner = new ArrayList<>();
         this.memories = new ArrayList<>();
+        this.role = "USER";
     }
 
     public Person(String firstname, String lastname, String gender, String email, String date) {
@@ -122,6 +129,7 @@ public class Person implements Serializable {
         this.partner = new ArrayList<>();
         this.memories = new ArrayList<>();
         this.date = date;
+        this.role = "USER";
     }
 
     public String getId() {
@@ -178,6 +186,14 @@ public class Person implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public List<String> getPartner() {
